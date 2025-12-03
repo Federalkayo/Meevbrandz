@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Portal | Meevbrandz</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <style>
+        .media-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem; margin-top: 2rem; }
+        .media-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08); transition: 0.3s; }
+        .media-card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0,0,0,0.15); }
+        .media-preview { aspect-ratio: 16/9; overflow: hidden; position: relative; background: #000; }
+        .media-preview img, .media-preview video { width: 100%; height: 100%; object-fit: cover; }
+        .media-type-badge { position: absolute; top: 12px; left: 12px; background: rgba(0,0,0,0.7); color: white; padding: 4px 10px; font-size: 0.75rem; border-radius: 6px; font-weight: 600; }
+        .media-actions { padding: 1rem; display: flex; justify-content: space-between; align-items: center; background: #f9f9f9; font-size: 0.9rem; }
+        .upload-zone { border: 3px dashed #999; border-radius: 16px; padding: 4rem 2rem; text-align: center; background: #fff; cursor: pointer; transition: 0.3s; margin-bottom: 2rem; }
+        .upload-zone:hover, .upload-zone.dragging { border-color: #000; background: #f5f5f5; }
+        .tab-sub-nav { display: flex; gap: 2rem; margin: 2rem 0 3rem; border-bottom: 2px solid #eee; padding-bottom: 1rem; }
+        .tab-sub-btn { cursor: pointer; font-weight: 600; padding-bottom: 0.5rem; opacity: 0.6; transition: 0.2s; }
+        .tab-sub-btn.active { opacity: 1; border-bottom: 3px solid #000; }
+        .spinner { border: 5px solid #f0f0f0; border-top: 5px solid #000; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 2rem auto; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        h1 { font-family: 'Playfair Display', serif; font-size: 3rem; margin-bottom: 0; }
+    </style>
+</head>
+<body>
+
+    <!-- Login -->
+    <div id="login-view" style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:#f0f0f0;">
+        <div style="background:white;padding:3rem;border-radius:16px;box-shadow:0 15px 50px rgba(0,0,0,0.15);max-width:420px;width:100%;">
+            <h2 style="text-align:center;margin-bottom:2rem;font-size:2rem;">Admin Portal</h2>
+            <form id="login-form">
+                <input type="email" id="admin-email" placeholder="admin@meevbrandz.com" required style="width:100%;padding:1rem;margin-bottom:1rem;border:1px solid #ddd;border-radius:10px;font-size:1rem;">
+                <input type="password" id="admin-password" placeholder="Password" required style="width:100%;padding:1rem;margin-bottom:1.5rem;border:1px solid #ddd;border-radius:10px;font-size:1rem;">
+                <button type="submit" style="width:100%;padding:1rem;background:#000;color:white;border:none;border-radius:10px;font-size:1.1rem;cursor:pointer;">Enter Dashboard</button>
+                <p id="login-error" style="color:#d32f2f;margin-top:1rem;text-align:center;display:none;font-weight:500;"></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="dashboard-view" style="display:none;padding:3rem;background:#f8f8f8;min-height:100vh;">
+        <h1>Media Management</h1>
+        <div class="tab-sub-nav">
+            <div class="tab-sub-btn active" onclick="filterMedia('all')">All Media</div>
+            <div class="tab-sub-btn" onclick="filterMedia('image')">Images</div>
+            <div class="tab-sub-btn" onclick="filterMedia('video')">Videos</div>
+        </div>
+
+        <div class="upload-zone" id="upload-dropzone">
+            <h3 style="margin:0 0 0.5rem 0;font-size:1.8rem;">Drop files here or click to upload</h3>
+            <p style="color:#666;margin:0;">Images & videos supported</p>
+            <input type="file" id="media-upload" multiple accept="image/*,video/*" style="display:none;">
+        </div>
+
+        <div id="upload-status" style="text-align:center;font-weight:600;"></div>
+        <div class="media-grid" id="media-grid"></div>
+        <div style="text-align:center;margin-top:3rem;">
+            <button onclick="supabase.auth.signOut().then(()=>location.reload())" style="padding:1rem 2.5rem;background:#d32f2f;color:white;border:none;border-radius:10px;font-size:1.1rem;cursor:pointer;">Logout</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const supabase = window.supabase.createClient(
+            'https://dcwmqnonfruqgrzaqbas.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRjd21xbm9uZnJ1cWdyemFxYmFzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ1ODc0NjAsImV4cCI6MjA4MDE2MzQ2MH0.vxHW-xZpbVuhjjaK66b5sOQkIHLamEB7KDE8j5eVFN8'
+        );
+
+        const loginView = document.getElementById('login-view');
+        const dashboardView = document.getElementById('dashboard-view');
+        const mediaGrid = document.getElementById('media-grid');
+
+        // Auto-login if session exists
+        supabase.auth.getSession().then(({ data: { session } }) => session && showDashboard());
+
+        document.getElementById('login-form').onsubmit = async e => {
+            e.preventDefault();
+            const { error } = await supabase.auth.signInWithPassword({
+                email: document.getElementById('admin-email').value.trim(),
+                password: document.getElementById('admin-password').value
+            });
+            if (error) {
+                document.getElementById('login-error').textContent = error.message;
+                document.getElementById('login-error').style.display = 'block';
+            } else {
+                showDashboard();
+            }
+        };
+
+        async function showDashboard() {
+            loginView.style.display = 'none';
+            dashboardView.style.display = 'block';
+            loadMedia();
+        }
+
+        async function loadMedia() {
+            const { data, error } = await supabase.storage.from('portfolio_media').list('');
+            if (error && error.message !== 'The resource was not found') return console.error(error);
+
+            mediaGrid.innerHTML = '';
+            if (!data || data.length === 0) {
+                mediaGrid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:#999;font-size:1.2rem;margin:3rem 0;">No media uploaded yet. Start adding some!</p>';
+                return;
+            }
+
+            data.forEach(file => {
+                if (file.name.startsWith('.') || file.name.endsWith('.emptyFolderPlaceholder')) return;
+                const url = supabase.storage.from('portfolio_media').getPublicUrl(file.name).data.publicUrl;
+                const isVideo = file.metadata?.mimetype?.includes('video') || /\.(mp4|webm|mov)$/i.test(file.name);
+
+                const card = document.createElement('div');
+                card.className = 'media-card';
+                card.dataset.type = isVideo ? 'video' : 'image';
+                card.innerHTML = `
+                    <div class="media-preview">
+                        <span class="media-type-badge">${isVideo ? 'VIDEO' : 'IMAGE'}</span>
+                        ${isVideo ? `<video src="${url}" controls preload="metadata"></video>` : `<img src="${url}" loading="lazy" alt="${file.name}">`}
+                    </div>
+                    <div class="media-actions">
+                        <span style="font-weight:500;">${file.name}</span>
+                        <button onclick="deleteFile('${file.name}')" style="background:#d32f2f;color:white;border:none;padding:0.6rem 1.2rem;border-radius:8px;cursor:pointer;font-weight:600;">Delete</button>
+                    </div>
+                `;
+                mediaGrid.appendChild(card);
+            });
+        }
+
+        window.deleteFile = async (name) => {
+            if (!confirm(`Permanently delete "${name}"?`)) return;
+            await supabase.storage.from('portfolio_media').remove([name]);
+            loadMedia();
+        };
+
+        // Upload
+        const dropzone = document.getElementById('upload-dropzone');
+        dropzone.onclick = () => document.getElementById('media-upload').click();
+        ['dragover', 'dragenter'].forEach(e => dropzone.addEventListener(e, () => dropzone.classList.add('dragging')));
+        ['dragleave', 'drop', 'dragend'].forEach(e => dropzone.addEventListener(e, () => dropzone.classList.remove('dragging')));
+        dropzone.ondrop = e => { e.preventDefault(); handleFiles(e.dataTransfer.files); };
+        document.getElementById('media-upload').onchange = e => handleFiles(e.target.files);
+
+        async function handleFiles(files) {
+            if (files.length === 0) return;
+            document.getElementById('upload-status').innerHTML = '<div class="spinner"></div><p>Uploading ' + files.length + ' file(s)...</p>';
+
+            for (const file of files) {
+                const fileName = `${Date.now()}_${file.name}`;
+                const { error } = await supabase.storage.from('portfolio_media').upload(fileName, file, { upsert: true });
+                if (error) console.error("Upload failed:", error);
+            }
+
+            document.getElementById('upload-status').innerHTML = '<p style="color:green;font-size:1.2rem;">All files uploaded successfully!</p>';
+            setTimeout(() => document.getElementById('upload-status').innerHTML = '', 3000);
+            loadMedia();
+        }
+
+        window.filterMedia = (type) => {
+            document.querySelectorAll('.tab-sub-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            document.querySelectorAll('.media-card').forEach(card => {
+                card.style.display = (type === 'all' || card.dataset.type === type) ? 'block' : 'none';
+            });
+        };
+    </script>
+</body>
+</html>

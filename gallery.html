@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gallery | Meevbrandz</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="noise-overlay"></div>
+
+    <nav class="navbar">
+        <div class="container nav-container">
+            <a href="/" class="logo">Meevbrandz.</a>
+            <div class="mobile-menu-btn">☰</div>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/about.html">About</a>
+                <a href="/gallery.html" class="active">Gallery</a>
+                <a href="/testimonials.html">Testimonials</a>
+                <a href="/videos.html">Videos</a>
+                <a href="/awards.html">Awards</a>
+                <a href="/services.html">Services</a>
+                <a href="/pricing.html">Pricing</a>
+                <a href="/contact.html">Contact</a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="section container" style="padding-top: 150px;">
+        <div style="text-align: center; margin-bottom: var(--spacing-lg);">
+            <h1 class="reveal-up">Selected Works.</h1>
+            <p class="reveal-up delay-1">A curation of our finest graphic design projects.</p>
+        </div>
+
+        <div class="gallery-grid" id="gallery-grid">
+            <!-- Static Placeholder Items with Animation Classes -->
+            <div class="gallery-item reveal-up delay-1" data-src="/assets/images/black_and_white_abst_ec7161a3.jpg">
+                <img src="/assets/images/black_and_white_abst_ec7161a3.jpg" alt="Project 1">
+                <div class="gallery-overlay">
+                    <h3>Project Alpha</h3>
+                </div>
+            </div>
+            
+            <div class="gallery-item reveal-up delay-2" data-src="/assets/images/black_and_white_abst_f64f5acb.jpg">
+                <img src="/assets/images/black_and_white_abst_f64f5acb.jpg" alt="Project 2">
+                <div class="gallery-overlay">
+                    <h3>Project Beta</h3>
+                </div>
+            </div>
+
+            <div class="gallery-item reveal-up delay-1" data-src="/assets/images/black_and_white_abst_772836e1.jpg">
+                <img src="/assets/images/black_and_white_abst_772836e1.jpg" alt="Project 3">
+                <div class="gallery-overlay">
+                    <h3>Project Gamma</h3>
+                </div>
+            </div>
+
+            <div class="gallery-item reveal-up delay-2" data-src="/assets/images/black_and_white_abst_f5761bf9.jpg">
+                <img src="/assets/images/black_and_white_abst_f5761bf9.jpg" alt="Project 4">
+                <div class="gallery-overlay">
+                    <h3>Project Delta</h3>
+                </div>
+            </div>
+
+             <div class="gallery-item reveal-up delay-1" data-src="/assets/images/modern_minimal_offic_b608e376.jpg">
+                <img src="/assets/images/modern_minimal_offic_b608e376.jpg" alt="Project 5">
+                <div class="gallery-overlay">
+                    <h3>Project Epsilon</h3>
+                </div>
+            </div>
+             <div class="gallery-item reveal-up delay-2" data-src="/assets/images/black_and_white_abst_ec7161a3.jpg">
+                <img src="/assets/images/black_and_white_abst_ec7161a3.jpg" alt="Project 6">
+                <div class="gallery-overlay">
+                    <h3>Project Zeta</h3>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Lightbox -->
+    <div class="lightbox" id="lightbox" style="display:none; position:fixed; inset:0; background:white; z-index:2000; align-items:center; justify-content:center;">
+        <div class="lightbox-close" style="position:absolute; top:30px; right:30px; font-size:3rem; cursor:pointer;">&times;</div>
+        <div class="lightbox-content" style="width:90%; height:90%; display:flex; align-items:center; justify-content:center;">
+            <img src="" alt="Lightbox Image" style="max-width:100%; max-height:100%; object-fit:contain;">
+        </div>
+    </div>
+    <style>
+        .lightbox.active { display: flex !important; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
+    </style>
+
+    <footer>
+        <div class="container">
+            <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 2rem; margin-bottom: 4rem; text-align: left;">
+                <div>
+                    <a href="/" class="logo" style="color: white; font-size: 1.5rem;">Meevbrandz.</a>
+                </div>
+                <div style="display: flex; gap: 2rem;">
+                    <a href="#" style="color: white; opacity: 0.7; font-size: 0.9rem; text-transform: uppercase;">Instagram</a>
+                    <a href="#" style="color: white; opacity: 0.7; font-size: 0.9rem; text-transform: uppercase;">Twitter</a>
+                    <a href="#" style="color: white; opacity: 0.7; font-size: 0.9rem; text-transform: uppercase;">LinkedIn</a>
+                    <a href="#" style="color: white; opacity: 0.7; font-size: 0.9rem; text-transform: uppercase;">Behance</a>
+                </div>
+            </div>
+            <p style="opacity: 0.5; font-size: 0.8rem;">&copy; 2025 Meevbrandz. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script src="/js/supabase-placeholders.js"></script>
+    <script src="/js/main.js"></script>
+    <script src="/js/gallery.js"></script>
+</body>
+</html>

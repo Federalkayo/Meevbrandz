@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact | Meevbrandz</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="noise-overlay"></div>
+
+    <nav class="navbar">
+        <div class="container nav-container">
+            <a href="/" class="logo">Meevbrandz.</a>
+            <div class="mobile-menu-btn">☰</div>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/about.html">About</a>
+                <a href="/gallery.html">Gallery</a>
+                <a href="/testimonials.html">Testimonials</a>
+                <a href="/videos.html">Videos</a>
+                <a href="/awards.html">Awards</a>
+                <a href="/services.html">Services</a>
+                <a href="/pricing.html">Pricing</a>
+                <a href="/contact.html" class="active">Contact</a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="section container" style="padding-top: 150px;">
+        <div class="grid grid-2">
+            <!-- Left Column: Info -->
+            <div class="reveal-up">
+                <h1>Let's start a<br>conversation.</h1>
+                <p style="font-size: 1.3rem; color: var(--gray-dark); margin-bottom: 4rem;">
+                    Interested in working together? <br>
+                    Fill out the form or drop us an email.
+                </p>
+                
+                <div style="margin-bottom: 3rem;">
+                    <h3 style="font-size: 1rem; text-transform: uppercase; color: var(--gray-dark); margin-bottom: 0.5rem;">Email</h3>
+                    <a href="mailto:hello@meevbrandz.com" style="font-size: 1.5rem; text-decoration: underline;">hello@meevbrandz.com</a>
+                </div>
+
+                <div style="margin-bottom: 3rem;">
+                    <h3 style="font-size: 1rem; text-transform: uppercase; color: var(--gray-dark); margin-bottom: 0.5rem;">Studio</h3>
+                    <p style="font-size: 1.2rem;">
+                        123 Design District,<br>
+                        New York, NY 10012
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Right Column: Form -->
+            <div class="reveal-up delay-1" style="padding-left: 2rem;">
+                <form id="contact-form" style="margin-top: 1rem;">
+                    <div class="contact-form-group">
+                        <input type="text" id="name" class="contact-input" required placeholder=" ">
+                        <label for="name" class="contact-label">Your Name</label>
+                    </div>
+                    
+                    <div class="contact-form-group">
+                        <input type="email" id="email" class="contact-input" required placeholder=" ">
+                        <label for="email" class="contact-label">Email Address</label>
+                    </div>
+                    
+                    <div class="contact-form-group">
+                        <input type="text" id="project" class="contact-input" required placeholder=" ">
+                        <label for="project" class="contact-label">Project Type (e.g., Branding)</label>
+                    </div>
+                    
+                    <div class="contact-form-group">
+                        <input type="text" id="budget" class="contact-input" placeholder=" ">
+                        <label for="budget" class="contact-label">Approx. Budget</label>
+                    </div>
+                    
+                    <div class="contact-form-group">
+                        <textarea id="message" class="contact-input" rows="1" required placeholder=" " style="resize: none; min-height: 100px;"></textarea>
+                        <label for="message" class="contact-label">Tell us about your project</label>
+                    </div>
+                    
+                    <button type="submit" class="btn" style="width: 100%; margin-top: 2rem;">Send Inquiry</button>
+                    
+                    <div id="form-success" style="display: none; margin-top: 2rem; padding: 1rem; background: #f0f9eb; color: #2e7d32; border: 1px solid #c8e6c9;">
+                        Thank you! We'll be in touch shortly.
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 2rem; margin-bottom: 4rem; text-align: left;">
+                <div>
+                    <a href="/" class="logo" style="color: white; font-size: 1.5rem;">Meevbrandz.</a>
+                </div>
+                <div style="display: flex; gap: 2rem;">
+                    <a href="#" style="color: white; opacity: 0.7; font-size: 0.9rem; text-transform: uppercase;">Instagram</a>
+                    <a href="#" style="color: white; opacity: 0.7; font-size: 0.9rem; text-transform: uppercase;">Twitter</a>
+                    <a href="#" style="color: white; opacity: 0.7; font-size: 0.9rem; text-transform: uppercase;">LinkedIn</a>
+                    <a href="#" style="color: white; opacity: 0.7; font-size: 0.9rem; text-transform: uppercase;">Behance</a>
+                </div>
+            </div>
+            <p style="opacity: 0.5; font-size: 0.8rem;">&copy; 2025 Meevbrandz. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script src="/js/supabase-placeholders.js"></script>
+    <script src="/js/main.js"></script>
+    <script>
+        // Auto-resize textarea
+        const tx = document.getElementsByTagName("textarea");
+        for (let i = 0; i < tx.length; i++) {
+            tx[i].setAttribute("style", "height:" + (tx[i].scrollHeight) + "px;overflow-y:hidden;");
+            tx[i].addEventListener("input", OnInput, false);
+        }
+        function OnInput() {
+            this.style.height = 0;
+            this.style.height = (this.scrollHeight) + "px";
+        }
+
+        // Form Handling
+        const form = document.getElementById('contact-form');
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = form.querySelector('button');
+            const originalText = btn.textContent;
+            btn.textContent = 'Sending...';
+            btn.disabled = true;
+
+            // Collect form data
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const project = document.getElementById('project').value;
+            const budget = document.getElementById('budget').value;
+            const message = document.getElementById('message').value;
+
+            // Construct WhatsApp Message
+            const whatsappNumber = "+2347063363052";
+            const text = `*New Inquiry from Website*%0A%0A*Name:* ${name}%0A*Email:* ${email}%0A*Project:* ${project}%0A*Budget:* ${budget}%0A*Message:* ${message}`;
+            
+            // Open WhatsApp
+            window.open(`https://wa.me/${whatsappNumber}?text=${text}`, '_blank');
+
+            // Show success state
+            document.getElementById('form-success').style.display = 'block';
+            form.reset();
+            btn.textContent = 'Sent';
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }, 3000);
+        });
+    </script>
+</body>
+</html>
