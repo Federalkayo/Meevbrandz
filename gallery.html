@@ -5,7 +5,74 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gallery | Meevbrandz</title>
     <link rel="stylesheet" href="/css/styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <style>
+        .gallery-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
+            gap: 2rem; 
+            padding: 2rem 0; 
+            max-width: 1400px; 
+            margin: 0 auto; 
+        }
+        .gallery-item { 
+            position: relative; 
+            border-radius: 16px; 
+            overflow: hidden; 
+            aspect-ratio: 1; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15); 
+            cursor: pointer; 
+            background: #111;
+        }
+        .gallery-item img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+            transition: transform 0.5s ease;
+        }
+        .gallery-item:hover img { transform: scale(1.12); }
+        .gallery-overlay { 
+            position: absolute; bottom: 0; left: 0; right: 0; 
+            background: linear-gradient(transparent, rgba(0,0,0,0.9)); 
+            color: white; padding: 2rem 1.2rem 1.2rem; 
+            transform: translateY(40px); transition: 0.4s;
+        }
+        .gallery-item:hover .gallery-overlay { transform: translateY(0); }
+        .gallery-overlay h3 { margin: 0; font-size: 1.35rem; font-weight: 600; }
+
+        /* Lightbox — Beautiful & Working */
+        #lightbox {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95);
+            backdrop-filter: blur(10px);
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            padding: 2rem;
+            box-sizing: border-box;
+        }
+        #lightbox.active { display: flex !important; }
+        #lightbox img {
+            max-width: 95%;
+            max-height: 95vh;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+            object-fit: contain;
+        }
+        .lightbox-close {
+            position: absolute;
+            top: 30px;
+            right: 40px;
+            font-size: 4rem;
+            color: white;
+            cursor: pointer;
+            font-weight: 300;
+            user-select: none;
+            transition: 0.3s;
+        }
+        .lightbox-close:hover { transform: scale(1.2); color: #ff5a5a; }
+    </style>
 </head>
 <body>
     <div class="noise-overlay"></div>
@@ -29,87 +96,72 @@
     </nav>
 
     <section class="section container" style="padding-top: 150px;">
-        <div style="text-align: center; margin-bottom: var(--spacing-lg);">
+        <div style="text-align: center; margin-bottom: 3rem;">
             <h1 class="reveal-up">Selected Works.</h1>
             <p class="reveal-up delay-1">A curation of our finest graphic design projects.</p>
         </div>
 
         <div class="gallery-grid" id="gallery-grid">
-            <!-- Static Placeholder Items with Animation Classes -->
-            <div class="gallery-item reveal-up delay-1" data-src="/assets/images/black_and_white_abst_ec7161a3.jpg">
-                <img src="/assets/images/black_and_white_abst_ec7161a3.jpg" alt="Project 1">
-                <div class="gallery-overlay">
-                    <h3>Project Alpha</h3>
-                </div>
-            </div>
-            
-            <div class="gallery-item reveal-up delay-2" data-src="/assets/images/black_and_white_abst_f64f5acb.jpg">
-                <img src="/assets/images/black_and_white_abst_f64f5acb.jpg" alt="Project 2">
-                <div class="gallery-overlay">
-                    <h3>Project Beta</h3>
-                </div>
-            </div>
-
-            <div class="gallery-item reveal-up delay-1" data-src="/assets/images/black_and_white_abst_772836e1.jpg">
-                <img src="/assets/images/black_and_white_abst_772836e1.jpg" alt="Project 3">
-                <div class="gallery-overlay">
-                    <h3>Project Gamma</h3>
-                </div>
-            </div>
-
-            <div class="gallery-item reveal-up delay-2" data-src="/assets/images/black_and_white_abst_f5761bf9.jpg">
-                <img src="/assets/images/black_and_white_abst_f5761bf9.jpg" alt="Project 4">
-                <div class="gallery-overlay">
-                    <h3>Project Delta</h3>
-                </div>
-            </div>
-
-             <div class="gallery-item reveal-up delay-1" data-src="/assets/images/modern_minimal_offic_b608e376.jpg">
-                <img src="/assets/images/modern_minimal_offic_b608e376.jpg" alt="Project 5">
-                <div class="gallery-overlay">
-                    <h3>Project Epsilon</h3>
-                </div>
-            </div>
-             <div class="gallery-item reveal-up delay-2" data-src="/assets/images/black_and_white_abst_ec7161a3.jpg">
-                <img src="/assets/images/black_and_white_abst_ec7161a3.jpg" alt="Project 6">
-                <div class="gallery-overlay">
-                    <h3>Project Zeta</h3>
-                </div>
-            </div>
+            <p style="grid-column: 1/-1; text-align:center; padding:5rem; color:#999;">Loading gallery...</p>
         </div>
     </section>
 
-    <!-- Lightbox -->
-    <div class="lightbox" id="lightbox" style="display:none; position:fixed; inset:0; background:white; z-index:2000; align-items:center; justify-content:center;">
-        <div class="lightbox-close" style="position:absolute; top:30px; right:30px; font-size:3rem; cursor:pointer;">&times;</div>
-        <div class="lightbox-content" style="width:90%; height:90%; display:flex; align-items:center; justify-content:center;">
-            <img src="" alt="Lightbox Image" style="max-width:100%; max-height:100%; object-fit:contain;">
-        </div>
+    <!-- LIGHTBOX -->
+    <div id="lightbox">
+        <span class="lightbox-close">×</span>
+        <img src="" alt="Full view">
     </div>
-    <style>
-        .lightbox.active { display: flex !important; animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
-    </style>
 
-    <footer>
-        <div class="container">
-            <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 2rem; margin-bottom: 4rem; text-align: left;">
-                <div>
-                    <a href="/" class="logo" style="color: white; font-size: 1.5rem;">Meevbrandz.</a>
-                </div>
-                <div style="display: flex; gap: 2rem;">
-                    <a href="#" style="color: white; opacity: 0.7; font-size: 0.9rem; text-transform: uppercase;">Instagram</a>
-                    <a href="#" style="color: white; opacity: 0.7; font-size: 0.9rem; text-transform: uppercase;">Twitter</a>
-                    <a href="#" style="color: white; opacity: 0.7; font-size: 0.9rem; text-transform: uppercase;">LinkedIn</a>
-                    <a href="#" style="color: white; opacity: 0.7; font-size: 0.9rem; text-transform: uppercase;">Behance</a>
-                </div>
-            </div>
-            <p style="opacity: 0.5; font-size: 0.8rem;">&copy; 2025 Meevbrandz. All Rights Reserved.</p>
-        </div>
-    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const supabase = window.supabase.createClient(
+            'https://dcwmqnonfruqgrzaqbas.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRjd21xbm9uZnJ1cWdyemFxYmFzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ1ODc0NjAsImV4cCI6MjA4MDE2MzQ2MH0.vxHW-xZpbVuhjjaK66b5sOQkIHLamEB7KDE8j5eVFN8'
+        );
 
-    <script src="/js/supabase-placeholders.js"></script>
+        const grid = document.getElementById('gallery-grid');
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = lightbox.querySelector('img');
+
+        async function loadGallery() {
+            const { data } = await supabase.storage.from('portfolio_media').list('');
+            const images = data
+                .filter(f => /\.(jpe?g|png|gif|webp)$/i.test(f.name))
+                .sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''));
+
+            grid.innerHTML = '';
+
+            if (images.length === 0) {
+                grid.innerHTML = '<p style="grid-column:1/-1; padding:6rem; color:#999;">No images uploaded yet.</p>';
+                return;
+            }
+
+            images.forEach(file => {
+                const url = supabase.storage.from('portfolio_media').getPublicUrl(file.name).data.publicUrl;
+                const title = file.name.replace(/^\d+_/, '').split('.')[0].replace(/_/g, ' ');
+
+                const item = document.createElement('div');
+                item.className = 'gallery-item';
+                item.innerHTML = `
+                    <img src="${url}" loading="lazy" alt="${title}">
+                    <div class="gallery-overlay"><h3>${title}</h3></div>
+                `;
+                item.onclick = () => {
+                    lightboxImg.src = url;
+                    lightbox.classList.add('active');
+                };
+                grid.appendChild(item);
+            });
+        }
+
+        // Close lightbox
+        document.querySelector('.lightbox-close').onclick = () => lightbox.classList.remove('active');
+        lightbox.onclick = (e) => { if (e.target === lightbox) lightbox.classList.remove('active'); };
+        document.addEventListener('keydown', (e) => e.key === 'Escape' && lightbox.classList.remove('active'));
+
+        loadGallery();
+    </script>
+
     <script src="/js/main.js"></script>
-    <script src="/js/gallery.js"></script>
 </body>
 </html>
