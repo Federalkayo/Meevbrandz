@@ -1,92 +1,134 @@
 /**
- * Main JavaScript for Meevbrandz
- * High-end animations and interactions
+ * Meevbrandz - Ultra Fast & Mobile-Optimized JavaScript
+ * Custom cursor ONLY on desktop · Zero lag on phones
+ * December 2025
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-    
-    // 1. Custom Cursor Logic
-    const cursorDot = document.createElement('div');
-    const cursorOutline = document.createElement('div');
-    cursorDot.className = 'cursor-dot';
-    cursorOutline.className = 'cursor-outline';
-    document.body.appendChild(cursorDot);
-    document.body.appendChild(cursorOutline);
 
-    window.addEventListener('mousemove', (e) => {
-        const posX = e.clientX;
-        const posY = e.clientY;
+    // ==================================================================
+    // 1. CUSTOM CURSOR — ONLY ON DESKTOP WITH MOUSE (zero cost on mobile)
+    // ==================================================================
+    const hasFinePointer = window.matchMedia('(pointer: fine)').matches;
+    const isDesktop = window.innerWidth >= 1024;
 
-        // Dot follows instantly
-        cursorDot.style.left = `${posX}px`;
-        cursorDot.style.top = `${posY}px`;
+    if (hasFinePointer && isDesktop) {
+        const cursorDot = document.createElement('div');
+        const cursorOutline = document.createElement('div');
+        cursorDot.className = 'cursor-dot';
+        cursorOutline.className = 'cursor-outline';
+        document.body.appendChild(cursorDot);
+        document.body.appendChild(cursorOutline);
 
-        // Outline follows with slight delay (CSS transition handles smoothness)
-        cursorOutline.style.left = `${posX}px`;
-        cursorOutline.style.top = `${posY}px`;
+        let mouseX = 0, mouseY = 0;
+        let dotX = 0, dotY = 0;
+        let outlineX = 0, outlineY = 0;
+        const speedDot = 1;
+        const speedOutline = 0.18;
 
-        // Interactive Hover Effect
-        const target = e.target;
-        if (target.tagName === 'A' || target.tagName === 'BUTTON' || target.closest('.gallery-item')) {
-            cursorOutline.style.transform = 'translate(-50%, -50%) scale(1.5)';
-            cursorOutline.style.backgroundColor = 'rgba(0,0,0,0.1)';
-        } else {
-            cursorOutline.style.transform = 'translate(-50%, -50%) scale(1)';
-            cursorOutline.style.backgroundColor = 'transparent';
-        }
-    });
+        const updateCursor = () => {
+            dotX += (mouseX - dotX) * speedDot;
+            dotY += (mouseY - dotY) * speedDot;
+            outlineX += (mouseX - outlineX) * speedOutline;
+            outlineY += (mouseY - outlineY) * speedOutline;
 
-    // 2. Scroll Reveal Animation (Intersection Observer)
-    const revealElements = document.querySelectorAll('.reveal-up');
+            cursorDot.style.transform = `translate(${dotX}px, ${dotY}px)`;
+            cursorOutline.style.transform = `translate(${outlineX}px, ${outlineY}px) translate(-50%, -50%)`;
 
+            requestAnimationFrame(updateCursor);
+        };
+
+        window.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        // Hover effect (buttons, links, gallery items)
+        document.querySelectorAll('a, button, .gallery-item, .btn, [data-cursor-hover]').forEach(el => {
+            el.addEventListener('mouseenter', () => cursorOutline.classList.add('hover'));
+            el.addEventListener('mouseleave', () => cursorOutline.classList.remove('hover'));
+        });
+
+        requestAnimationFrame(updateCursor);
+    }
+    // ← On phones/tablets: nothing happens → 0 overhead
+
+
+    // ==================================================================
+    // 2. SCROLL REVEAL ANIMATIONS
+    // ==================================================================
     const revealObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 entry.target.classList.add('active');
-                // Optional: Stop observing once revealed
-                // revealObserver.unobserve(entry.target);
             }
         });
     }, {
-        threshold: 0.1,
-        rootMargin: "0px 0px -50px 0px"
+        threshold: 0.15,
+        rootMargin: '0px 0px -80px 0px'
     });
 
-    revealElements.forEach(el => revealObserver.observe(el));
+    document.querySelectorAll('.reveal-up, .reveal-left, .reveal-right, .reveal-fade').forEach(el => {
+        revealObserver.observe(el);
+    });
 
-    // 3. Mobile Menu
+
+    // ==================================================================
+    // 3. MOBILE MENU
+    // ==================================================================
     const mobileBtn = document.querySelector('.mobile-menu-btn');
     const navLinks = document.querySelector('.nav-links');
-    
-    if (mobileBtn) {
+
+    if (mobileBtn && navLinks) {
         mobileBtn.addEventListener('click', () => {
-            navLinks.classList.toggle('active');
-            mobileBtn.textContent = navLinks.classList.contains('active') ? '✕' : '☰';
+            const isActive = navLinks.classList.toggle('active');
+            mobileBtn.setAttribute('aria-expanded', isActive);
+            mobileBtn.textContent = isActive ? '✕' : '☰';
+        });
+
+        // Close menu when clicking a link
+        navLinks.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                navLinks.classList.remove('active');
+                mobileBtn.textContent = '☰';
+            });
         });
     }
 
-    // 4. Navbar Scroll Effect
+
+    // ==================================================================
+    // 4. NAVBAR SHRINK ON SCROLL (throttled)
+    // ==================================================================
     const navbar = document.querySelector('.navbar');
-    let lastScrollY = window.scrollY;
+    let ticking = false;
+
+    const updateNavbar = () => {
+        navbar.classList.toggle('scrolled', window.scrollY > 80);
+        ticking = false;
+    };
 
     window.addEventListener('scroll', () => {
-        if (window.scrollY > 50) {
-            navbar.style.padding = '0.5rem 0';
-            navbar.style.background = 'rgba(255,255,255,0.95)';
-        } else {
-            navbar.style.padding = '1.5rem 0';
-            navbar.style.background = 'rgba(255,255,255,0.8)';
+        if (!ticking) {
+            requestAnimationFrame(updateNavbar);
+            ticking = true;
         }
-        lastScrollY = window.scrollY;
     });
 
-    // 5. Smooth Scroll for Anchors
+    // Initial check
+    updateNavbar();
+
+
+    // ==================================================================
+    // 5. SMOOTH SCROLL FOR ANCHOR LINKS
+    // ==================================================================
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-            e.preventDefault();
-            document.querySelector(this.getAttribute('href')).scrollIntoView({
-                behavior: 'smooth'
-            });
+        anchor.addEventListener('click', (e) => {
+            const target = document.querySelector(anchor.getAttribute('href'));
+            if (target) {
+                e.preventDefault();
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                history.pushState(null, null, anchor.getAttribute('href'));
+            }
         });
     });
 });

@@ -6,22 +6,86 @@
     <title>Videos | Meevbrandz</title>
     <link rel="stylesheet" href="/css/styles.css">
     <style>
-        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 2.5rem; padding: 2rem 0; max-width: 1400px; margin: 0 auto; }
-        .video-thumb { position: relative; aspect-ratio: 16/9; border-radius: 20px; overflow: hidden; cursor: pointer; box-shadow: 0 20px 50px rgba(0,0,0,0.25); transition: all 0.4s ease; }
-        .video-thumb:hover { transform: translateY(-15px); box-shadow: 0 35px 80px rgba(0,0,0,0.4); }
-        .video-thumb video { width: 100%; height: 100%; object-fit: cover; display: block; }
-        .play-icon { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90px; height: 90px; background: rgba(255,255,255,0.98); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 15px 40px rgba(0,0,0,0.6); transition: all 0.3s ease; pointer-events: none; }
-        .video-thumb:hover .play-icon { transform: translate(-50%, -50%) scale(1.25); background: white; }
-        .play-icon::after { content: ''; border-style: solid; border-width: 20px 0 20px 35px; border-color: transparent transparent transparent #000; margin-left: 8px; }
-        .gallery-overlay { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.95)); color: white; padding: 3rem 1.8rem 1.8rem; transform: translateY(40px); transition: transform 0.4s ease; }
+        .gallery-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); 
+            gap: 2.5rem; 
+            padding: 2rem 0; 
+            max-width: 1400px; 
+            margin: 0 auto; 
+        }
+        .video-thumb { 
+            position: relative; 
+            aspect-ratio: 16/9; 
+            border-radius: 20px; 
+            overflow: hidden; 
+            cursor: pointer; 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.25); 
+            transition: all 0.4s ease;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.8s ease forwards;
+        }
+        @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+        .video-thumb:hover { 
+            transform: translateY(-15px); 
+            box-shadow: 0 35px 80px rgba(0,0,0,0.4); 
+        }
+        .video-thumb video { 
+            width: 100%; height: 100%; object-fit: cover; display: block; 
+        }
+        .play-icon { 
+            position: absolute; top: 50%; left: 50%; 
+            transform: translate(-50%, -50%); 
+            width: 90px; height: 90px; 
+            background: rgba(255,255,255,0.98); 
+            border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center; 
+            box-shadow: 0 15px 40px rgba(0,0,0,0.6); 
+            transition: all 0.3s ease; pointer-events: none; 
+        }
+        .video-thumb:hover .play-icon { 
+            transform: translate(-50%, -50%) scale(1.25); 
+            background: white; 
+        }
+        .play-icon::after { 
+            content: ''; 
+            border-style: solid; 
+            border-width: 20px 0 20px 35px; 
+            border-color: transparent transparent transparent #000; 
+            margin-left: 8px; 
+        }
+        .gallery-overlay { 
+            position: absolute; bottom: 0; left: 0; right: 0; 
+            background: linear-gradient(transparent, rgba(0,0,0,0.95)); 
+            color: white; padding: 3rem 1.8rem 1.8rem; 
+            transform: translateY(40px); transition: transform 0.4s ease; 
+        }
         .video-thumb:hover .gallery-overlay { transform: translateY(0); }
         .gallery-overlay h3 { margin: 0; font-size: 1.5rem; font-weight: 600; }
 
-        #video-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98); backdrop-filter: blur(20px); align-items: center; justify-content: center; z-index: 9999; padding: 2rem; }
+        #video-modal { 
+            display: none; 
+            position: fixed; inset: 0; 
+            background: rgba(0,0,0,0.98); 
+            backdrop-filter: blur(20px); 
+            align-items: center; justify-content: center; 
+            z-index: 9999; padding: 2rem; 
+        }
         #video-modal.active { display: flex; }
-        .video-wrapper { width: 100%; max-width: 1300px; aspect-ratio: 16/9; border-radius: 24px; overflow: hidden; box-shadow: 0 40px 100px rgba(0,0,0,0.9); }
+        .video-wrapper { 
+            width: 100%; max-width: 1300px; 
+            aspect-ratio: 16/9; 
+            border-radius: 24px; 
+            overflow: hidden; 
+            box-shadow: 0 40px 100px rgba(0,0,0,0.9); 
+        }
         #main-player { width: 100%; height: 100%; outline: none; }
-        .lightbox-close { position: absolute; top: 40px; right: 50px; font-size: 5.5rem; color: white; cursor: pointer; font-weight: 200; z-index: 10000; transition: 0.3s; }
+        .lightbox-close { 
+            position: absolute; top: 40px; right: 50px; 
+            font-size: 5.5rem; color: white; cursor: pointer; 
+            font-weight: 200; z-index: 10000; transition: 0.3s; 
+        }
         .lightbox-close:hover { color: #ff3366; transform: scale(1.3); }
     </style>
 </head>
@@ -31,7 +95,7 @@
     <nav class="navbar">
         <div class="container nav-container">
             <a href="/" class="logo">Meevbrandz.</a>
-            <div class="mobile-menu-btn">☰</div>
+            <div class="mobile-menu-btn">Menu</div>
             <div class="nav-links">
                 <a href="/">Home</a>
                 <a href="/about.html">About</a>
@@ -49,7 +113,9 @@
     <section class="section container" style="padding-top: 150px;">
         <div style="text-align: center; margin-bottom: 4rem;">
             <h1 class="reveal-up">Motion & Video.</h1>
-            <p class="reveal-up delay-1">Cinematic storytelling and brand motion.</p>
+            <p class="reveal-up delay-1">Cinematic storytelling and brand motion.<br>
+                <small style="color:#888;font-size:0.9rem;">Live • New videos appear instantly</small>
+            </p>
         </div>
 
         <div class="gallery-grid" id="video-grid">
@@ -74,46 +140,78 @@
         const grid   = document.getElementById('video-grid');
         const modal  = document.getElementById('video-modal');
         const player = document.getElementById('main-player');
+        const loadedVideos = new Set();
 
-        // THIS IS THE KEY: Read signed URLs from admin's localStorage
+        // Load signed URLs created by your admin dashboard
         const signedUrls = JSON.parse(localStorage.getItem('meev_signed_urls') || '{}');
 
-        async function loadVideos() {
-            const { data } = await supabase.storage.from('portfolio_media').list('');
+        // Cloudflare warmup
+        fetch('https://dcwmqnonfruqgrzaqbas.supabase.co/storage/v1/object/public/portfolio_media/', {method:'HEAD',mode:'no-cors'}).catch(()=>{});
+
+        function getTitle(name) {
+            return name.replace(/^\d+[_-]/, '').replace(/\.[^/.]+$/, "").replace(/_/g, " ").trim();
+        }
+
+        function createVideoThumb(fileName) {
+            const url = signedUrls[fileName] || supabase.storage.from('portfolio_media').getPublicUrl(fileName).data.publicUrl;
+            const title = getTitle(fileName);
+
+            const div = document.createElement('div');
+            div.className = 'video-thumb';
+            div.innerHTML = `
+                <video src="${url}#t=0.1" preload="metadata" muted playsinline loop></video>
+                <div class="play-icon"></div>
+                <div class="gallery-overlay"><h3>${title}</h3></div>
+            `;
+            div.onclick = () => {
+                player.src = url;
+                player.play();
+                modal.classList.add('active');
+            };
+            return div;
+        }
+
+        async function loadAllVideos() {
+            const { data } = await supabase.storage
+                .from('portfolio_media')
+                .list('', { limit: 100, sortBy: { column: 'created_at', order: 'desc' }});
 
             const videos = data
-                .filter(f => /\.(mp4|webm|mov|avi)$/i.test(f.name))
-                .sort((a,b) => (b.created_at || '').localeCompare(a.created_at || ''));
+                .filter(f => /\.(mp4|webm|mov|avi|mkv)$/i.test(f.name))
+                .filter(f => !f.name.startsWith('.'));
 
             grid.innerHTML = '';
+            videos.forEach(f => {
+                if (loadedVideos.has(f.name)) return;
+                loadedVideos.add(f.name);
+                grid.appendChild(createVideoThumb(f.name));
+            });
 
             if (videos.length === 0) {
                 grid.innerHTML = '<p style="grid-column:1/-1; padding:10rem; color:#888;">No videos uploaded yet.</p>';
-                return;
             }
-
-            videos.forEach(file => {
-                // Use signed URL if exists (from admin), otherwise fallback to public
-                const url = signedUrls[file.name] || supabase.storage.from('portfolio_media').getPublicUrl(file.name).data.publicUrl;
-                const title = file.name.replace(/^\d+_/, '').replace(/\.[^/.]+$/, "").replace(/_/g, " ");
-
-                const thumb = document.createElement('div');
-                thumb.className = 'video-thumb';
-                thumb.innerHTML = `
-                    <video src="${url}#t=0.1" preload="metadata" muted playsinline loop></video>
-                    <div class="play-icon"></div>
-                    <div class="gallery-overlay"><h3>${title}</h3></div>
-                `;
-                thumb.onclick = () => {
-                    player.src = url;
-                    player.play();
-                    modal.classList.add('active');
-                };
-                grid.appendChild(thumb);
-            });
         }
 
-        document.querySelector('.lightbox-close').onclick = () => closeModal();
+        // REALTIME: New video uploaded from admin → appears instantly!
+        supabase.channel('video-uploads')
+            .on('postgres_changes', {
+                event: 'INSERT',
+                schema: 'storage',
+                table: 'objects',
+                filter: 'bucket_id=eq.portfolio_media'
+            }, payload => {
+                const file = payload.new;
+                if (!file || loadedVideos.has(file.name)) return;
+                if (!/\.(mp4|webm|mov|avi|mkv)$/i.test(file.name)) return;
+
+                loadedVideos.add(file.name);
+                console.log('New video live!', file.name);
+                grid.prepend(createVideoThumb(file.name)); // Instant + animated
+            })
+            .subscribe(status => console.log('Video Realtime:', status));
+
+        // Modal controls
+        document.querySelector('.lightbox-close').onclick = closeModal;
         modal.onclick = e => e.target === modal && closeModal();
         document.addEventListener('keydown', e => e.key === 'Escape' && closeModal());
 
@@ -124,7 +222,8 @@
             player.load();
         }
 
-        loadVideos();
+        // Start
+        setTimeout(loadAllVideos, 500);
     </script>
     <script src="/js/main.js"></script>
 </body>
