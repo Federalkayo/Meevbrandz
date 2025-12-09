@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics | Meevbrandz Admin</title>
+    <link rel="apple-touch-icon" href="assets/images/logo.avif">
+    <link rel="icon" href="assets/images/logo.avif" type="image/avif">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg: #f8f9fc;
+            --sidebar: #111;
+            --text: #1a1a1a;
+            --accent: #000;
+            --danger: #e74c3c;
+            --success: #27ae60;
+            --primary: #6c5ce7;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Top Bar */
+        #top-bar {
+            position: fixed;
+            top: 0; left: 280px; right: 0; height: 70px;
+            background: white;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 0 2rem;
+            z-index: 998;
+            transition: left 0.4s;
+        }
+        #live-clock {
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 0.6rem 1.2rem;
+            border-radius: 12px;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Sidebar */
+        #admin-sidebar {
+            position: fixed; left: 0; top: 0; bottom: 0; width: 280px;
+            background: var(--sidebar); color: white; padding: 2rem 0;
+            z-index: 999; box-shadow: 4px 0 20px rgba(0,0,0,0.1);
+            transition: transform 0.4s cubic-bezier(0.65, 0, 0.35, 1);
+            transform: translateX(-100%);
+            display: flex; flex-direction: column;
+        }
+        body.logged-in #admin-sidebar { transform: translateX(0); }
+        #admin-sidebar.open { transform: translateX(0); }
+
+        .sidebar-header { padding: 0 2rem 2rem; border-bottom: 1px solid #333; }
+        .sidebar-header h2 { margin: 0; font-family: 'Playfair Display', serif; font-size: 2rem; }
+        .sidebar-nav a {
+            display: flex; align-items: center; gap: 1rem; padding: 1rem 2rem;
+            color: #ccc; text-decoration: none; transition: 0.3s;
+        }
+        .sidebar-nav a:hover, .sidebar-nav a.active { background: #222; color: white; }
+        .sidebar-logout {
+            margin-top: auto; padding: 1.5rem 2rem; border-top: 1px solid #333;
+        }
+        .sidebar-logout a {
+            display: flex; align-items: center; gap: 1rem; padding: 1rem 1.5rem;
+            background: rgba(231,76,60,0.15); color: #e74c3c !important;
+            border-radius: 12px; font-weight: 600; text-decoration: none;
+        }
+        .sidebar-logout a:hover { background: #e74c3c; color: white !important; }
+
+        #hamburger, #sidebar-overlay { display: none; }
+        @media (max-width: 992px) {
+            #top-bar { left: 0; }
+            #hamburger, #sidebar-overlay { display: block; }
+        }
+
+        #analytics-content {
+            margin-left: 280px;
+            padding: 6rem 3rem 4rem;
+            max-width: 1400px;
+            transition: margin-left 0.4s;
+        }
+        @media (max-width: 992px) { #analytics-content { margin-left: 0; padding-top: 9rem; } }
+
+        h1 { font-family: 'Playfair Display', serif; font-size: 3.4rem; margin-bottom: 0.5rem; }
+        .subtitle { color: #555; margin-bottom: 3rem; font-size: 1.3rem; }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            text-align: center;
+            transition: all 0.4s;
+        }
+        .stat-card:hover { transform: translateY(-10px); box-shadow: 0 20px 60px rgba(0,0,0,0.15); }
+        .stat-card i { font-size: 3rem; margin-bottom: 1rem; }
+        .stat-number { font-size: 2.8rem; font-weight: 700; color: var(--accent); }
+        .stat-label { color: #666; font-size: 1.1rem; margin-top: 0.5rem; }
+
+        .search-bar {
+            margin-bottom: 2rem;
+            position: relative;
+        }
+        .search-bar input {
+            width: 100%;
+            padding: 1rem 1rem 1rem 3rem;
+            border: 2px solid #ddd;
+            border-radius: 16px;
+            font-size: 1.1rem;
+        }
+        .search-bar i {
+            position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: #999;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2.5rem;
+            margin-bottom: 4rem;
+        }
+        .chart-container {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+        }
+        .chart-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .recent-uploads, .login-history {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            margin-bottom: 2rem;
+        }
+        .recent-uploads h3, .login-history h3 {
+            font-size: 1.6rem;
+            margin-bottom: 1.5rem;
+        }
+        .upload-item, .login-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid #eee;
+        }
+        .upload-item:last-child, .login-item:last-child { border-bottom: none; }
+        .upload-thumb {
+            width: 60px; height: 60px; border-radius: 10px; object-fit: cover; margin-right: 1rem;
+        }
+        .upload-info, .login-info { flex: 1; }
+        .upload-name, .login-time { font-weight: 600; }
+        .upload-date, .login-device { color: #888; font-size: 0.9rem; }
+
+        @media (max-width: 992px) {
+            .charts-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="top-bar">
+        <div id="live-clock">
+            <i class="fas fa-clock"></i>
+            <span id="clock-time">00:00:00</span>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div id="admin-sidebar">
+        <div class="sidebar-header"><h2>Meevbrandz</h2></div>
+        <nav class="sidebar-nav">
+            <a href="admin.html"><i class="fas fa-images"></i> Media</a>
+            <a href="analytics.html" class="active"><i class="fas fa-chart-line"></i> Analytics</a>
+            <a href="settings.html"><i class="fas fa-cog"></i> Settings</a>
+            <a href="pricing-editor.html"><i class="fas fa-dollar-sign"></i> Pricing Editor</a>
+        </nav>
+        <div class="sidebar-logout">
+            <a href="#" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+    </div>
+
+    <div id="sidebar-overlay"></div>
+    <button id="hamburger"><i class="fas fa-bars"></i></button>
+
+    <!-- Analytics Content -->
+    <div id="analytics-content">
+        <h1>Analytics Dashboard</h1>
+        <p class="subtitle">Real-time insights about your media and account activity</p>
+
+        <!-- Search Files -->
+        <div class="search-bar">
+            <i class="fas fa-search"></i>
+            <input type="text" id="fileSearch" placeholder="Search your uploaded files..." autocomplete="off">
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <i class="fas fa-images" style="color:#6c5ce7"></i>
+                <div class="stat-number" id="totalImages">0</div>
+                <div class="stat-label">Total Images</div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-video" style="color:#e84393"></i>
+                <div class="stat-number" id="totalVideos">0</div>
+                <div class="stat-label">Total Videos</div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-hdd" style="color:#00b894"></i>
+                <div class="stat-number" id="totalSize">0 MB</div>
+                <div class="stat-label">Storage Used</div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-calendar-check" style="color:#fdcb6e"></i>
+                <div class="stat-number" id="uploadsToday">0</div>
+                <div class="stat-label">Uploaded Today</div>
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-grid">
+            <div class="chart-container">
+                <h3 class="chart-title">Uploads This Week</h3>
+                <canvas id="weeklyChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <h3 class="chart-title">File Type Distribution</h3>
+                <canvas id="typeChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Recent Uploads + Search Results -->
+        <div class="recent-uploads">
+            <h3>Recent Uploads</h3>
+            <div id="recent-list">
+                <p style="text-align:center;color:#999;padding:2rem;">Loading recent files...</p>
+            </div>
+        </div>
+
+        <!-- Login History -->
+        <div class="login-history">
+            <h3>Your Login History</h3>
+            <div id="login-history-list">
+                <p style="text-align:center;color:#999;padding:2rem;">Loading login history...</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const supabase = window.supabase.createClient(
+            'https://dcwmqnonfruqgrzaqbas.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRjd21xbm9uZnJ1cWdyemFxYmFzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ1ODc0NjAsImV4cCI6MjA4MDE2MzQ2MH0.vxHW-xZpbVuhjjaK66b5sOQkIHLamEB7KDE8j5eVFN8'
+        );
+
+        let allFiles = [];
+
+        // Live Clock
+        function updateClock() {
+            const time = new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            document.getElementById('clock-time').textContent = time;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        async function initPage() {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) {
+                window.location.href = 'admin.html';
+                return;
+            }
+            document.body.classList.add('logged-in');
+            loadAnalytics();
+            loadLoginHistory();
+            setInterval(loadAnalytics, 30000);
+        }
+
+        async function loadAnalytics() {
+            const { data: files } = await supabase.storage
+                .from('portfolio_media')
+                .list('public', { limit: 1000 });
+
+            if (!files) return;
+            allFiles = files.filter(f => !f.name.startsWith('.') && f.name !== 'emptyFolderPlaceholder');
+
+            const images = allFiles.filter(f => !/\.(mp4|webm|mov|avi|mkv|mpg|mpeg|ogg)$/i.test(f.name));
+            const videos = allFiles.filter(f => /\.(mp4|webm|mov|avi|mkv|mpg|mpeg|ogg)$/i.test(f.name));
+
+            document.getElementById('totalImages').textContent = images.length;
+            document.getElementById('totalVideos').textContent = videos.length;
+
+            const totalBytes = allFiles.reduce((sum, f) => sum + (f.metadata?.size || 0), 0);
+            document.getElementById('totalSize').textContent = (totalBytes / (1024*1024)).toFixed(1) + ' MB';
+
+            const today = new Date().toISOString().split('T')[0];
+            const todayUploads = allFiles.filter(f => f.created_at?.startsWith(today));
+            document.getElementById('uploadsToday').textContent = todayUploads.length;
+
+            // Recent Uploads
+            const recent = allFiles
+                .sort((a,b) => new Date(b.created_at) - new Date(a.created_at))
+                .slice(0, 10);
+
+            const recentList = document.getElementById('recent-list');
+            recentList.innerHTML = '';
+            recent.forEach(file => {
+                const isVideo = /\.(mp4|webm|mov|avi|mkv|mpg|mpeg|ogg)$/i.test(file.name);
+                const url = supabase.storage.from('portfolio_media').getPublicUrl(`public/${file.name}`).data.publicUrl;
+                const item = document.createElement('div');
+                item.className = 'upload-item';
+                item.innerHTML = `
+                    <img src="${isVideo ? 'assets/video-thumb.jpg' : url}" class="upload-thumb" onerror="this.src='https://via.placeholder.com/60/333/fff?text=FILE'">
+                    <div class="upload-info">
+                        <div class="upload-name">${file.name}</div>
+                        <div class="upload-date">${new Date(file.created_at).toLocaleString()}</div>
+                    </div>
+                `;
+                recentList.appendChild(item);
+            });
+
+            // Charts - Fixed line
+            const weekData = [0,0,0,0,0,0,0];
+            const now = new Date();
+            allFiles.forEach(f => {
+                const date = new Date(f.created_at);
+                const dayDiff = Math.floor((now - date) / (1000*60*60*24));
+                if (dayDiff >= 0 && dayDiff < 7) weekData[6 - dayDiff]++;
+            });
+
+            const ctx1 = document.getElementById('weeklyChart').getContext('2d');
+            if (window.weeklyChartInstance) window.weeklyChartInstance.destroy();
+            window.weeklyChartInstance = new Chart(ctx1, {
+                type: 'line',
+                data: {
+                    labels: ['6d ago', '5d ago', '4d ago', '3d ago', '2d ago', 'Yesterday', 'Today'],
+                    datasets: [{
+                        label: 'Uploads',
+                        data: weekData,
+                        borderColor: '#6c5ce7',
+                        backgroundColor: 'rgba(108,92,231,0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: { responsive: true, plugins: { legend: { display: false } } }
+            });
+
+            const ctx2 = document.getElementById('typeChart').getContext('2d');
+            if (window.typeChartInstance) window.typeChartInstance.destroy();
+            window.typeChartInstance = new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Images', 'Videos'],
+                    datasets: [{
+                        data: [images.length, videos.length],
+                        backgroundColor: ['#6c5ce7', '#e84393']
+                    }]
+                },
+                options: { responsive: true }
+            });
+        }
+
+        // Search Files
+        document.getElementById('fileSearch').addEventListener('input', function() {
+            const term = this.value.toLowerCase();
+            const items = document.querySelectorAll('#recent-list .upload-item');
+            items.forEach(item => {
+                const name = item.querySelector('.upload-name').textContent.toLowerCase();
+                item.style.display = name.includes(term) ? 'flex' : 'none';
+            });
+        });
+
+        // Login History
+        async function loadLoginHistory() {
+            const list = document.getElementById('login-history-list');
+            list.innerHTML = `
+                <div class="login-item">
+                    <div class="login-info">
+                        <div class="login-time">Just now</div>
+                        <div class="login-device">Current session • ${navigator.userAgent.includes('Mobile') ? 'Mobile' : 'Desktop'}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Mobile menu & logout
+        document.getElementById('hamburger').onclick = () => {
+            document.getElementById('admin-sidebar').classList.toggle('open');
+            document.getElementById('sidebar-overlay').classList.toggle('open');
+        };
+        document.getElementById('sidebar-overlay').onclick = () => {
+            document.getElementById('admin-sidebar').classList.remove('open');
+            document.getElementById('sidebar-overlay').classList.remove('open');
+        };
+        document.getElementById('logout-btn').onclick = () => {
+            if (confirm('Logout?')) {
+                supabase.auth.signOut().then(() => window.location.href = 'admin.html');
+            }
+        };
+
+        initPage();
+    </script>
+</body>
+</html>

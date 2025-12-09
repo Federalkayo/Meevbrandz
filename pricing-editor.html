@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pricing Editor | Meevbrandz Admin</title>
+    <link rel="icon" href="assets/images/logo.avif" type="image/avif">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        :root { --bg: #f8f9fc; --sidebar: #111; --accent: #000; --success: #27ae60; --danger: #e74c3c; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: var(--bg); font-family: 'Inter', sans-serif; min-height: 100vh; overflow-x: hidden; }
+
+        #top-bar { position: fixed; top: 0; left: 280px; right: 0; height: 70px; background: white; box-shadow: 0 2px 15px rgba(0,0,0,0.08); display: flex; align-items: center; justify-content: flex-end; padding: 0 2rem; z-index: 998; }
+        #live-clock { background: rgba(0,0,0,0.8); color: white; padding: 0.6rem 1.2rem; border-radius: 12px; font-weight: 600; backdrop-filter: blur(10px); display: flex; align-items: center; gap: 0.5rem; }
+
+        #admin-sidebar {
+            position: fixed; left: 0; top: 0; bottom: 0; width: 280px;
+            background: var(--sidebar); color: white; padding: 2rem 0;
+            z-index: 999; box-shadow: 4px 0 20px rgba(0,0,0,0.1);
+            transition: transform 0.4s; transform: translateX(-100%);
+        }
+        body.logged-in #admin-sidebar { transform: translateX(0); }
+        #admin-sidebar.open { transform: translateX(0); }
+
+        .sidebar-header h2 { padding: 0 2rem 2rem; border-bottom: 1px solid #333; font-family: 'Playfair Display', serif; font-size: 2rem; }
+        .sidebar-nav a { display: flex; align-items: center; gap: 1rem; padding: 1rem 2rem; color: #ccc; text-decoration: none; transition: 0.3s; }
+        .sidebar-nav a:hover, .sidebar-nav a.active { background: #222; color: white; }
+        .sidebar-logout { margin-top: auto; padding: 1.5rem 2rem; border-top: 1px solid #333; }
+        .sidebar-logout a { display: flex; align-items: center; gap: 1rem; padding: 1rem 1.5rem; background: rgba(231,76,60,0.15); color: #e74c3c; border-radius: 12px; font-weight: 600; }
+        .sidebar-logout a:hover { background: #e74c3c; color: white !important; }
+
+        #hamburger, #sidebar-overlay { display: none; }
+        @media (max-width: 992px) { #top-bar { left: 0; } #hamburger, #sidebar-overlay { display: block; } }
+
+        #pricing-content { margin-left: 280px; padding: 6rem 3rem 4rem; max-width: 1200px; transition: margin-left 0.4s; }
+        @media (max-width: 992px) { #pricing-content { margin-left: 0; padding-top: 9rem; } }
+
+        h1 { font-family: 'Playfair Display', serif; font-size: 3.4rem; margin-bottom: 0.5rem; }
+        .subtitle { color: #555; margin-bottom: 3rem; font-size: 1.3rem; }
+
+        .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 2rem; }
+        .pricing-card { background: white; border-radius: 20px; padding: 2rem; box-shadow: 0 10px 40px rgba(0,0,0,0.08); transition: all 0.4s; }
+        .pricing-card:hover { transform: translateY(-10px); box-shadow: 0 20px 60px rgba(0,0,0,0.15); }
+        .pricing-card.featured { border: 3px solid var(--accent); position: relative; }
+        .pricing-card.featured::after { content: "MOST POPULAR"; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--accent); color: white; padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
+
+        input, textarea { width: 100%; padding: 0.8rem; margin: 0.8rem 0; border: 2px solid #ddd; border-radius: 12px; font-size: 1rem; }
+        input:focus, textarea:focus { border-color: var(--accent); outline: none; }
+        textarea { min-height: 120px; resize: vertical; }
+
+        .save-btn { background: var(--accent); color: white; padding: 1rem 2rem; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; margin-top: 1rem; transition: 0.3s; }
+        .save-btn:hover { background: #222; transform: translateY(-2px); }
+
+        .success-msg { background: #d4edda; color: var(--success); padding: 1rem; border-radius: 12px; margin: 2rem 0; text-align: center; font-weight: 600; display: none; }
+    </style>
+</head>
+<body>
+
+    <div id="top-bar">
+        <div id="live-clock">
+            <i class="fas fa-clock"></i> <span id="clock-time">00:00:00</span>
+        </div>
+    </div>
+
+    <div id="admin-sidebar">
+        <div class="sidebar-header"><h2>Meevbrandz</h2></div>
+        <nav class="sidebar-nav">
+            <a href="admin.html"><i class="fas fa-images"></i> Media</a>
+            <a href="analytics.html"><i class="fas fa-chart-line"></i> Analytics</a>
+            <a href="settings.html"><i class="fas fa-cog"></i> Settings</a>
+            <a href="pricing-editor.html" class="active"><i class="fas fa-dollar-sign"></i> Pricing Editor</a>
+        </nav>
+        <div class="sidebar-logout">
+            <a href="#" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+    </div>
+
+    <div id="sidebar-overlay"></div>
+    <button id="hamburger"><i class="fas fa-bars"></i></button>
+
+    <div id="pricing-content">
+        <h1>Pricing Editor</h1>
+        <p class="subtitle">Update your pricing packages — changes appear instantly on your live site!</p>
+
+        <div class="pricing-grid">
+            <div class="pricing-card">
+                <h3>Starter Plan</h3>
+                <input type="text" id="starter-name" placeholder="Plan name">
+                <input type="text" id="starter-price" placeholder="Price">
+                <textarea id="starter-features" placeholder="Features (one per line)"></textarea>
+                <button class="save-btn" onclick="savePlan('starter')">Save Starter Plan</button>
+            </div>
+
+            <div class="pricing-card featured">
+                <h3>Professional Plan</h3>
+                <input type="text" id="pro-name" placeholder="Plan name">
+                <input type="text" id="pro-price" placeholder="Price">
+                <textarea id="pro-features" placeholder="Features (one per line)"></textarea>
+                <button class="save-btn" onclick="savePlan('pro')">Save Pro Plan</button>
+            </div>
+
+            <div class="pricing-card">
+                <h3>Enterprise Plan</h3>
+                <input type="text" id="enterprise-name" placeholder="Plan name">
+                <input type="text" id="enterprise-price" placeholder="Price">
+                <textarea id="enterprise-features" placeholder="Features (one per line)"></textarea>
+                <button class="save-btn" onclick="savePlan('enterprise')">Save Enterprise Plan</button>
+            </div>
+        </div>
+
+        <div class="success-msg" id="successMsg">Pricing updated successfully!</div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const supabase = window.supabase.createClient(
+            'https://dcwmqnonfruqgrzaqbas.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRjd21xbm9uZnJ1cWdyemFxYmFzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ1ODc0NjAsImV4cCI6MjA4MDE2MzQ2MH0.vxHW-xZpbVuhjjaK66b5sOQkIHLamEB7KDE8j5eVFN8'
+        );
+
+        // Live Clock
+        function updateClock() {
+            const time = new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            document.getElementById('clock-time').textContent = time;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Auth check
+        async function init() {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) return window.location.href = 'admin.html';
+            document.body.classList.add('logged-in');
+            await loadPricing();
+        }
+
+        // Load the single pricing row (id = 1)
+        async function loadPricing() {
+            const { data, error } = await supabase
+                .from('pricing')
+                .select('*')
+                .eq('id', 1)
+                .single();
+
+            if (error && error.code !== 'PGRST116') { // PGRST116 = no rows
+                console.error('Load error:', error);
+                return;
+            }
+
+            if (data) {
+                document.getElementById('starter-name').value = data.starter_name || 'Starter';
+                document.getElementById('starter-price').value = data.starter_price || '$900';
+                document.getElementById('starter-features').value = data.starter_features || '';
+
+                document.getElementById('pro-name').value = data.pro_name || 'Professional';
+                document.getElementById('pro-price').value = data.pro_price || '$2,500';
+                document.getElementById('pro-features').value = data.pro_features || '';
+
+                document.getElementById('enterprise-name').value = data.enterprise_name || 'Enterprise';
+                document.getElementById('enterprise-price').value = data.enterprise_price || '$5k+';
+                document.getElementById('enterprise-features').value = data.enterprise_features || '';
+            }
+        }
+
+        // FIXED savePlan – always upserts the single row with id = 1
+        async function savePlan(plan) {
+            const updates = {
+                id: 1  // This forces upsert to target the single row
+            };
+
+            if (plan === 'starter') {
+                updates.starter_name = document.getElementById('starter-name').value.trim();
+                updates.starter_price = document.getElementById('starter-price').value.trim();
+                updates.starter_features = document.getElementById('starter-features').value.trim();
+            } else if (plan === 'pro') {
+                updates.pro_name = document.getElementById('pro-name').value.trim();
+                updates.pro_price = document.getElementById('pro-price').value.trim();
+                updates.pro_features = document.getElementById('pro-features').value.trim();
+            } else if (plan === 'enterprise') {
+                updates.enterprise_name = document.getElementById('enterprise-name').value.trim();
+                updates.enterprise_price = document.getElementById('enterprise-price').value.trim();
+                updates.enterprise_features = document.getElementById('enterprise-features').value.trim();
+            }
+
+            const { error } = await supabase
+                .from('pricing')
+                .upsert(updates, { onConflict: 'id' }); // Critical!
+
+            const msg = document.getElementById('successMsg');
+
+            if (!error) {
+                msg.style.display = 'block';
+                setTimeout(() => msg.style.display = 'none', 3000);
+            } else {
+                alert('Save failed: ' + error.message);
+                console.error(error);
+            }
+        }
+
+        // Mobile menu
+        document.getElementById('hamburger')?.addEventListener('click', () => {
+            document.getElementById('admin-sidebar').classList.toggle('open');
+            document.getElementById('sidebar-overlay').classList.toggle('open');
+        });
+        document.getElementById('sidebar-overlay')?.addEventListener('click', () => {
+            document.getElementById('admin-sidebar').classList.remove('open');
+            document.getElementById('sidebar-overlay').classList.remove('open');
+        });
+
+        // Logout
+        document.getElementById('logout-btn').addEventListener('click', (e) => {
+            e.preventDefault();
+            if (confirm('Logout?')) {
+                supabase.auth.signOut().then(() => location.href = 'admin.html');
+            }
+        });
+
+        init();
+    </script>
+</body>
+</html>

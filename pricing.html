@@ -5,14 +5,205 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pricing | Meevbrandz</title>
     <link rel="stylesheet" href="/css/styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link rel="apple-touch-icon" href="assets/images/logo.avif">
+    <link rel="icon" type="image/avif" sizes="32x32" href="assets/images/logo.avif">
+    <link rel="icon" type="image/avif" sizes="16x16" href="assets/images/logo.avif">
+    <link rel="icon" href="assets/images/logo.avif" type="image/avif">
+    <link rel="alternate icon" href="assets/images/logo.avif" type="image/avif">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+          integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+          crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg: #0f0f0f;
+            --card: #161616;
+            --border: #333;
+            --text: #ffffff;
+            --muted: #aaaaaa;
+        }
+        * { box-sizing: border-box; }
+        body { 
+            background: var(--bg); 
+            color: var(--text); 
+            margin: 0; 
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+
+        .container { max-width: 1400px; margin: 0 auto; padding: 0 1.5rem; }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2.8rem, 8vw, 4.8rem);
+            text-align: center;
+            margin: 0;
+            font-weight: 600;
+        }
+        .subtitle {
+            text-align: center;
+            color: #aaa;
+            font-size: clamp(1.1rem, 3vw, 1.3rem);
+            max-width: 700px;
+            margin: 1.5rem auto 0;
+            padding: 0 1rem;
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+            margin: 6rem 0;
+            padding: 0 1rem;
+        }
+
+        /* MAGIC HAPPENS HERE → makes button stick to bottom */
+        .package-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 3rem 2rem;
+            text-align: center;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; /* ← This pushes button to bottom */
+            min-height: 680px; /* optional: makes all cards same height */
+        }
+
+        .package-card:hover {
+            border-color: #666;
+            transform: translateY(-12px);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+        }
+        .package-card.featured {
+            border: 2px solid #fff;
+            background: #1e1e1e;
+        }
+        .package-card.featured::before {
+            content: "MOST POPULAR";
+            position: absolute;
+            top: 0; right: 0;
+            background: #fff;
+            color: #000;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            padding: 0.5rem 1.3rem;
+            border-bottom-left-radius: 14px;
+        }
+
+        .package-icon i {
+            font-size: clamp(3.2rem, 7vw, 4.2rem);
+            margin-bottom: 1.8rem;
+            opacity: 0.9;
+        }
+        .package-name {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(1.7rem, 5vw, 2.1rem);
+            font-weight: 600;
+            margin: 0.5rem 1rem;
+        }
+        .package-price {
+            font-size: clamp(2.6rem, 7vw, 3.4rem);
+            font-weight: 700;
+            margin: 1.5rem 0;
+        }
+        .package-price small {
+            font-size: 1rem;
+            color: var(--muted);
+            font-weight: 400;
+        }
+
+        .package-features {
+            list-style: none;
+            padding: 0;
+            margin: 2rem 0 1rem;
+            text-align: left;
+            line-height: 2;
+            flex-grow: 1; /* lets the list take available space */
+        }
+        .package-features li {
+            color: #ddd;
+            padding-left: 2.4rem;
+            position: relative;
+            margin-bottom: 0.7rem;
+            font-size: 0.98rem;
+        }
+        .package-features li::before {
+            content: "\f00c";
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            color: #fff;
+            top: 0.1rem;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 1.3rem;
+            border-radius: 16px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            text-decoration: none;
+            transition: all 0.3s;
+            margin-top: auto; /* ← pushes button to very bottom */
+        }
+        .btn-outline {
+            border: 2px solid #555;
+            color: #fff;
+            background: transparent;
+        }
+        .btn-outline:hover {
+            border-color: #fff;
+            background: #fff;
+            color: #000;
+        }
+        .btn-primary {
+            background: #fff;
+            color: #000;
+        }
+        .btn-primary:hover {
+            background: transparent;
+            color: #fff;
+            border: 2px solid #fff;
+        }
+
+        .pricing-note {
+            text-align:center;
+            margin:6rem 0 4rem;
+            color:#888;
+            font-size: clamp(0.95rem, 2.5vw, 1.1rem);
+            padding: 0 1rem;
+        }
+
+        @media (max-width: 480px) {
+            .pricing-grid { 
+                gap: 2.5rem; 
+                padding: 0 0.8rem; 
+                margin: 4rem 0;
+            }
+            .package-card {
+                padding: 2.5rem 1.5rem;
+                min-height: auto;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="noise-overlay"></div>
 
     <nav class="navbar">
         <div class="container nav-container">
-            <a href="/" class="logo">Meevbrandz.</a>
+            <a href="/" class="logo">
+                <img src="assets/images/logo.avif" alt="Meevbrandz" class="logo-img">
+                <span class="logo-text">Meevbrandz</span>
+            </a>
             <div class="mobile-menu-btn">☰</div>
             <div class="nav-links">
                 <a href="/">Home</a>
@@ -20,7 +211,6 @@
                 <a href="/gallery.html">Gallery</a>
                 <a href="/testimonials.html">Testimonials</a>
                 <a href="/videos.html">Videos</a>
-                <a href="/awards.html">Awards</a>
                 <a href="/services.html">Services</a>
                 <a href="/pricing.html" class="active">Pricing</a>
                 <a href="/contact.html">Contact</a>
@@ -28,83 +218,133 @@
         </div>
     </nav>
 
-    <section class="section container" style="padding-top: 150px;">
-        <div style="text-align: center; max-width: 800px; margin: 0 auto var(--spacing-lg) auto;">
-            <h1 class="reveal-up">Investment.</h1>
-            <p class="reveal-up delay-1">Transparent pricing packages for every stage of your business.</p>
-        </div>
+    <section style="padding-top: 160px; padding-bottom: 100px;">
+        <div class="container">
+            <h1>Investment.</h1>
+            <p class="subtitle">High-end creative services. Transparent pricing in NGN.</p>
 
-        <div class="pricing-minimal reveal-up delay-2">
-            <!-- Starter -->
-            <div class="pricing-column">
-                <div class="plan-name">Starter</div>
-                <div class="price-amount">$900</div>
-                <ul class="plan-features">
-                    <li><span class="check-icon"></span> Logo Design (2 Concepts)</li>
-                    <li><span class="check-icon"></span> Brand Color Palette</li>
-                    <li><span class="check-icon"></span> Typography Selection</li>
-                    <li><span class="check-icon"></span> Business Card Design</li>
-                    <li><span class="check-icon"></span> File Formats (Ai, EPS, PNG)</li>
-                </ul>
-                <div style="margin-top: auto; padding-top: 3rem;">
-                    <a href="/contact.html" class="btn btn-outline" style="width: 100%;">Select Starter</a>
+            <div class="pricing-grid">
+
+                <!-- LOGO BRAND DEVELOPMENT - NANO -->
+                <div class="package-card">
+                    <div class="package-icon"><i class="fas fa-pen-fancy"></i></div>
+                    <h3 class="package-name">Logo Brand Development<br><small>Nano</small></h3>
+                    <div class="package-price">₦50k</div>
+                    <ul class="package-features">
+                        <li>2 logo variations relating to brand</li>
+                        <li>Logo wireframes</li>
+                        <li>PNG, JPEG, SVG</li>
+                        <li>Relevant mockups</li>
+                        <li>Soft copy of Business card & Letterhead design</li>
+                        <li>Premium link to invoice maker</li>
+                        <li>2 Revisions</li>
+                        <li>1 Free E-Flyer Design</li>
+                    </ul>
+                    <a href="/contact.html" class="btn btn-outline">Get Started</a>
                 </div>
+
+                <!-- LOGO BRAND DEVELOPMENT - PREMIUM -->
+                <div class="package-card featured">
+                    <div class="package-icon"><i class="fas fa-crown"></i></div>
+                    <h3 class="package-name">Logo Brand Development<br><small>Premium</small></h3>
+                    <div class="package-price">₦150k</div>
+                    <ul class="package-features">
+                        <li>3 logo variations relating to brand</li>
+                        <li>Logo wireframes</li>
+                        <li>PNG, JPEG, SVG + Source File (PSD)</li>
+                        <li>Relevant mockups</li>
+                        <li>Soft copy of Business card & Letterhead design</li>
+                        <li>Premium link to invoice maker</li>
+                        <li>3 Revisions</li>
+                        <li>1 Free E-Flyer Design</li>
+                        <li>Brand Guideline</li>
+                        <li>Motion Graphics</li>
+                    </ul>
+                    <a href="/contact.html" class="btn btn-primary">Get Started</a>
+                </div>
+
+                <!-- SOCIAL MEDIA MANAGEMENT -->
+                <div class="package-card featured">
+                    <div class="package-icon"><i class="fab fa-instagram"></i></div>
+                    <h3 class="package-name">Social Media Management<br><small>& Strategy</small></h3>
+                    <div class="package-price">₦400k<small>/month</small></div>
+                    <ul class="package-features">
+                        <li>Content Strategy & Ideation</li>
+                        <li>Business Development Model</li>
+                        <li>Content Calendar</li>
+                        <li>Daily Posting</li>
+                        <li>Page Revamp + Analytics</li>
+                        <li>Sponsored Ads Management</li>
+                        <li>Video Editing & Reels</li>
+                        <li>Community Growth & Engagement</li>
+                        <li>Monthly Page Audit</li>
+                        <li>Leads Generation & Sales Funnel</li>
+                        <li>Instagram, Facebook & TikTok</li>
+                    </ul>
+                    <a href="/contact.html" class="btn btn-primary">Get Started</a>
+                </div>
+
+                <!-- FLYER DESIGN PACKAGES -->
+                <div class="package-card">
+                    <div class="package-icon"><i class="fas fa-images"></i></div>
+                    <h3 class="package-name">Flyer Design Packages</h3>
+                    <div class="package-price">From ₦30k</div>
+                    <ul class="package-features">
+                        <li>5 Designs → ₦30,000</li>
+                        <li>10 Designs → ₦65,000</li>
+                        <li>20 Designs → ₦85,000</li>
+                        <li>30 Designs → ₦130,000</li>
+                        <li>Motion Graphics Add-on → +₦30,000</li>
+                    </ul>
+                    <a href="/contact.html" class="btn btn-outline">Get Started</a>
+                </div>
+
+                <!-- FULL EVENT BRANDING -->
+                <div class="package-card">
+                    <div class="package-icon"><i class="fas fa-star"></i></div>
+                    <h3 class="package-name">Full Event Branding</h3>
+                    <div class="package-price">₦300k</div>
+                    <ul class="package-features">
+                        <li>Complete event visual identity</li>
+                        <li>Banners, backdrops, flyers, tickets</li>
+                        <li>Social media kit for the event</li>
+                        <li>Stage & venue branding assets</li>
+                        <li>Print-ready + digital files</li>
+                        <li>Fast turnaround available</li>
+                    </ul>
+                    <a href="/contact.html" class="btn btn-outline">Get Started</a>
+                </div>
+
             </div>
 
-            <!-- Professional (Featured) -->
-            <div class="pricing-column featured">
-                <div class="plan-name" style="opacity: 0.8; color: var(--white);">Professional</div>
-                <div class="price-amount">$2,500</div>
-                <ul class="plan-features">
-                    <li><span class="check-icon"></span> Everything in Starter</li>
-                    <li><span class="check-icon"></span> Full Brand Guidelines</li>
-                    <li><span class="check-icon"></span> Social Media Kit</li>
-                    <li><span class="check-icon"></span> Stationery Design</li>
-                    <li><span class="check-icon"></span> 3 Rounds of Revisions</li>
-                    <li><span class="check-icon"></span> Priority Support</li>
-                </ul>
-                <div style="margin-top: auto; padding-top: 3rem;">
-                    <a href="/contact.html" class="btn btn-outline" style="width: 100%;">Select Pro</a>
-                </div>
+            <div class="pricing-note">
+                <p>All prices in Nigerian Naira (₦) • 50% deposit required to start • Custom packages always available</p>
             </div>
-
-            <!-- Enterprise -->
-            <div class="pricing-column">
-                <div class="plan-name">Enterprise</div>
-                <div class="price-amount">$5k+</div>
-                <ul class="plan-features">
-                    <li><span class="check-icon"></span> Everything in Professional</li>
-                    <li><span class="check-icon"></span> Web Design (5+ Pages)</li>
-                    <li><span class="check-icon"></span> Marketing Collateral</li>
-                    <li><span class="check-icon"></span> Motion Graphics / Video</li>
-                    <li><span class="check-icon"></span> Unlimited Revisions</li>
-                    <li><span class="check-icon"></span> Dedicated Art Director</li>
-                </ul>
-                <div style="margin-top: auto; padding-top: 3rem;">
-                    <a href="/contact.html" class="btn btn-outline" style="width: 100%;">Contact Us</a>
-                </div>
-            </div>
-        </div>
-
-        <div style="text-align: center; margin-top: var(--spacing-lg); color: var(--gray-dark);">
-            <p>All prices are in USD. 50% deposit required to start.</p>
         </div>
     </section>
 
-    <footer>
-        <div class="container">
-            <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 2rem; margin-bottom: 4rem; text-align: left;">
-                <div>
-                    <a href="/" class="logo" style="color: white; font-size: 1.5rem;">Meevbrandz.</a>
-                </div>
-                <div style="display: flex; gap: 2rem;">
-                    <a href="#" style="color: white; opacity: 0.7; font-size: 0.9rem; text-transform: uppercase;">Instagram</a>
-                    <a href="#" style="color: white; opacity: 0.7; font-size: 0.9rem; text-transform: uppercase;">Twitter</a>
-                    <a href="#" style="color: white; opacity: 0.7; font-size: 0.9rem; text-transform: uppercase;">LinkedIn</a>
-                    <a href="#" style="color: white; opacity: 0.7; font-size: 0.9rem; text-transform: uppercase;">Behance</a>
+    <footer style="background:#1a1a1a;padding:60px 0 40px;">
+        <div class="container" style="max-width:1200px;margin:0 auto;padding:0 20px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:2rem;margin-bottom:3rem;">
+                <a href="/" class="logo" style="color:white;font-size:1.8rem;font-weight:600;text-decoration:none;">Meevbrandz</a>
+                <div style="display:flex;gap:2rem;">
+                    <a href="https://facebook.com/yourpage" target="_blank" rel="noopener" aria-label="Facebook" style="color:white;font-size:1.5rem;opacity:0.8;transition:opacity .2s;">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="https://pinterest.com/yourprofile" target="_blank" rel="noopener" aria-label="Pinterest" style="color:white;font-size:1.5rem;opacity:0.8;">
+                        <i class="fab fa-pinterest-p"></i>
+                    </a>
+                    <a href="https://instagram.com/meevbrandz.initiatives" target="_blank" rel="noopener" aria-label="Instagram" style="color:white;font-size:1.5rem;opacity:0.8;">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="https://linkedin.com/in/chike-ibekwe-421043186" target="_blank" rel="noopener" aria-label="LinkedIn" style="color:white;font-size:1.5rem;opacity:0.8;">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
                 </div>
             </div>
-            <p style="opacity: 0.5; font-size: 0.8rem;">&copy; 2025 Meevbrandz. All Rights Reserved.</p>
+            <p style="text-align:center;opacity:0.5;font-size:0.875rem;color:white;border-top:1px solid rgba(255,255,255,0.1);padding-top:20px;">
+                © 2025 Meevbrandz All Rights Reserved.
+            </p>
         </div>
     </footer>
 

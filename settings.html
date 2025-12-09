@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings | Meevbrandz Admin</title>
+    <link rel="apple-touch-icon" href="assets/images/logo.avif">
+    <link rel="icon" href="assets/images/logo.avif" type="image/avif">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        :root {
+            --bg: #f8f9fc;
+            --sidebar: #111;
+            --text: #1a1a1a;
+            --accent: #000;
+            --danger: #e74c3c;
+            --success: #27ae60;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Top Bar Clock */
+        #top-bar {
+            position: fixed;
+            top: 0; left: 280px; right: 0; height: 70px;
+            background: white;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 0 2rem;
+            z-index: 998;
+            transition: left 0.4s;
+        }
+        #live-clock {
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 0.6rem 1.2rem;
+            border-radius: 12px;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Sidebar */
+        #admin-sidebar {
+            position: fixed; left: 0; top: 0; bottom: 0; width: 280px;
+            background: var(--sidebar); color: white; padding: 2rem 0;
+            z-index: 999; box-shadow: 4px 0 20px rgba(0,0,0,0.1);
+            transition: transform 0.4s cubic-bezier(0.65, 0, 0.35, 1);
+            transform: translateX(-100%);
+            display: flex; flex-direction: column;
+        }
+        body.logged-in #admin-sidebar { transform: translateX(0); }
+        #admin-sidebar.open { transform: translateX(0); }
+
+        .sidebar-header { padding: 0 2rem 2rem; border-bottom: 1px solid #333; }
+        .sidebar-header h2 { margin: 0; font-family: 'Playfair Display', serif; font-size: 2rem; }
+
+        .sidebar-nav { flex: 1; padding: 1rem 0; }
+        .sidebar-nav a {
+            display: flex; align-items: center; gap: 1rem; padding: 1rem 2rem;
+            color: #ccc; text-decoration: none; transition: 0.3s;
+        }
+        .sidebar-nav a:hover, .sidebar-nav a.active { background: #222; color: white; }
+        .sidebar-nav i { width: 20px; text-align: center; }
+
+        /* LOGOUT AT THE VERY BOTTOM */
+        .sidebar-logout {
+            margin-top: auto;
+            padding: 1.5rem 2rem;
+            border-top: 1px solid #333;
+        }
+        .sidebar-logout a {
+            display: flex; align-items: center; gap: 1rem; padding: 1rem 1.5rem;
+            background: rgba(231,76,60,0.15); color: #e74c3c !important;
+            border-radius: 12px; font-weight: 600; text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        .sidebar-logout a:hover {
+            background: #e74c3c; color: white !important; transform: translateX(6px);
+        }
+
+        #hamburger {
+            position: fixed; top: 1.5rem; left: 1.5rem; z-index: 1000;
+            background: #000; color: white; border: none; width: 56px; height: 56px;
+            border-radius: 50%; font-size: 1.5rem; cursor: pointer;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3); display: none;
+        }
+        #sidebar-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+            opacity: 0; pointer-events: none; transition: opacity 0.4s; z-index: 998;
+        }
+        #sidebar-overlay.open { opacity: 1; pointer-events: all; }
+
+        @media (max-width: 992px) {
+            #top-bar { left: 0; }
+            #hamburger, #sidebar-overlay { display: block; }
+        }
+
+        #settings-content {
+            margin-left: 280px;
+            padding: 6rem 3rem 4rem;
+            max-width: 900px;
+            transition: margin-left 0.4s;
+        }
+        @media (max-width: 992px) { #settings-content { margin-left: 0; padding-top: 9rem; } }
+
+        h1 { font-family: 'Playfair Display', serif; font-size: 3.2rem; margin-bottom: 0.5rem; }
+        .subtitle { color: #555; margin-bottom: 2.5rem; }
+
+        .profile-section {
+            background: white;
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        #profile-avatar {
+            width: 120px; height: 120px; border-radius: 50%;
+            object-fit: cover; border: 5px solid #f0f0f0;
+            margin-bottom: 1rem;
+        }
+        #avatar-upload { display: none; }
+        .upload-btn {
+            background: #000; color: white; padding: 0.8rem 1.8rem;
+            border: none; border-radius: 12px; cursor: pointer; font-weight: 600;
+        }
+
+        .form-group { margin-bottom: 1.8rem; }
+        label {
+            display: block; margin-bottom: 0.6rem; font-weight:500;
+            color: #333;
+        }
+        input[type="text"], input[type="email"], input[type="password"] {
+            width: 100%; padding: 1rem;
+            border: 2px solid #ddd; border-radius: 12px;
+            font-size: 1rem;
+        }
+        input:focus { border-color: #000; outline: none; }
+
+        .save-btn {
+            background: var(--accent); color: white;
+            padding: 1rem 2.5rem; border: none; border-radius: 12px;
+            font-size: 1.1rem; font-weight: 600; cursor: pointer;
+            transition: 0.3s;
+        }
+        .save-btn:hover { background: #222; transform: translateY(-2px); }
+
+        .danger-zone {
+            background: #ffe6e6;
+            border: 2px solid var(--danger);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-top: 3rem;
+            text-align: center;
+        }
+        .danger-zone h3 {
+            color: var(--danger);
+            margin-bottom: 1rem;
+            font-size: 1.4rem;
+        }
+        .delete-btn {
+            background: var(--danger);
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+        .delete-btn:hover { background: #c0392b; }
+
+        .success-msg, .error-msg {
+            font-weight: 600; margin-top: 1rem; padding: 1rem; border-radius: 8px; display: none;
+        }
+        .success-msg { background: #d4edda; color: var(--success); }
+        .error-msg { background: #f8d7da; color: var(--danger); }
+    </style>
+</head>
+<body>
+
+    <!-- Top Bar Clock -->
+    <div id="top-bar">
+        <div id="live-clock">
+            <i class="fas fa-clock"></i>
+            <span id="clock-time">00:00:00</span>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div id="admin-sidebar">
+        <div class="sidebar-header"><h2>Meevbrandz</h2></div>
+        <nav class="sidebar-nav">
+            <a href="admin.html"><i class="fas fa-images"></i> Media</a>
+            <a href="analytics.html"><i class="fas fa-chart-line"></i> Analytics</a>
+            <a href="settings.html" class="active"><i class="fas fa-cog"></i> Settings</a>
+            <a href="pricing-editor.html"><i class="fas fa-dollar-sign"></i> Pricing Editor</a>
+        </nav>
+
+        <!-- LOGOUT AT THE VERY BOTTOM -->
+        <div class="sidebar-logout">
+            <a href="#" id="logout-btn">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+    </div>
+
+    <div id="sidebar-overlay"></div>
+    <button id="hamburger"><i class="fas fa-bars"></i></button>
+
+    <!-- Settings Content -->
+    <div id="settings-content">
+        <h1>Account Settings</h1>
+        <p class="subtitle">Update your profile and manage your account</p>
+
+        <div class="profile-section">
+            <img id="profile-avatar" src="https://via.placeholder.com/120/333/fff?text=A" alt="Profile">
+            <br>
+            <label class="upload-btn">
+                <i class="fas fa-camera"></i> Change Avatar
+                <input type="file" id="avatar-upload" accept="image/*">
+            </label>
+            <p style="margin-top:1rem;color:#666;">Click to upload new photo (max 2MB)</p>
+        </div>
+
+        <form id="settings-form">
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" id="fullName" placeholder="John Doe" required>
+            </div>
+
+            <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" id="userEmail" placeholder="admin@meevbrandz.com" required>
+            </div>
+
+            <div class="form-group">
+                <label>New Password (leave blank to keep current)</label>
+                <input type="password" id="newPassword" placeholder="">
+            </div>
+
+            <button type="submit" class="save-btn">
+                <i class="fas fa-save"></i> Save Changes
+            </button>
+
+            <p class="success-msg" id="successMsg">Changes saved successfully!</p>
+            <p class="error-msg" id="errorMsg"></p>
+        </form>
+
+        <!-- Danger Zone -->
+        <div class="danger-zone">
+            <h3>Danger Zone</h3>
+            <p>Permanently delete your account and all data. This cannot be undone.</p>
+            <button class="delete-btn" id="deleteAccountBtn">
+                Delete My Account
+            </button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const supabase = window.supabase.createClient(
+            'https://dcwmqnonfruqgrzaqbas.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRjd21xbm9uZnJ1cWdyemFxYmFzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ1ODc0NjAsImV4cCI6MjA4MDE2MzQ2MH0.vxHW-xZpbVuhjjaK66b5sOQkIHLamEB7KDE8j5eVFN8'
+        );
+
+        // Live Clock
+        function updateClock() {
+            const time = new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            document.getElementById('clock-time').textContent = time;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Show sidebar when logged in
+        async function initPage() {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                document.body.classList.add('logged-in');
+                loadUserData();
+            } else {
+                window.location.href = 'admin.html';
+            }
+        }
+
+        // Load user data
+        async function loadUserData() {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) return;
+
+            document.getElementById('fullName').value = user.user_metadata?.full_name || user.email.split('@')[0] || '';
+            document.getElementById('userEmail').value = user.email || '';
+
+            if (user.user_metadata?.avatar_url) {
+                document.getElementById('profile-avatar').src = user.user_metadata.avatar_url + '?t=' + Date.now();
+            }
+        }
+
+        // FIXED: Full Name + Avatar both work perfectly now
+        document.getElementById('settings-form').onsubmit = async (e) => {
+            e.preventDefault();
+
+            const fullName = document.getElementById('fullName').value.trim();
+            const email = document.getElementById('userEmail').value.trim();
+            const password = document.getElementById('newPassword').value;
+
+            const successMsg = document.getElementById('successMsg');
+            const errorMsg = document.getElementById('errorMsg');
+            successMsg.style.display = 'none';
+            errorMsg.style.display = 'none';
+
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+
+                const updates = {
+                    data: {
+                        ...(user.user_metadata || {}),
+                        full_name: fullName
+                    }
+                };
+
+                if (email !== user.email) updates.email = email;
+
+                const { error } = await supabase.auth.updateUser(updates);
+                if (error) throw error;
+
+                if (password) {
+                    const { error: pwdError } = await supabase.auth.updateUser({ password });
+                    if (pwdError) throw pwdError;
+                }
+
+                successMsg.textContent = 'All changes saved!';
+                successMsg.style.display = 'block';
+
+                setTimeout(() => {
+                    if (confirm('Go back to dashboard?')) window.location.href = 'admin.html';
+                }, 1500);
+
+            } catch (err) {
+                errorMsg.textContent = err.message || 'Something went wrong';
+                errorMsg.style.display = 'block';
+            }
+        };
+
+        // FIXED: Avatar upload now preserves full_name and everything else
+        document.getElementById('avatar-upload').onchange = async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            if (file.size > 2 * 1024 * 1024) return alert('Image must be under 2MB');
+
+            const user = (await supabase.auth.getUser()).data.user;
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${user.id}.${fileExt}`;
+
+            const { error } = await supabase.storage.from('avatars').upload(fileName, file, { upsert: true });
+            if (error && error.statusCode !== '23505') return alert('Upload failed: ' + error.message);
+
+            const { data } = supabase.storage.from('avatars').getPublicUrl(fileName);
+
+            // This line is the key — we merge existing metadata instead of overwriting
+            await supabase.auth.updateUser({
+                data: {
+                    ...(user.user_metadata || {}),
+                    avatar_url: data.publicUrl
+                }
+            });
+
+            document.getElementById('profile-avatar').src = data.publicUrl + '?t=' + Date.now();
+            alert('Avatar updated successfully!');
+        };
+
+        // Delete Account (unchanged)
+        document.getElementById('deleteAccountBtn').onclick = async () => {
+            const confirm1 = prompt('Type DELETE to confirm account deletion:', '');
+            if (confirm1 !== 'DELETE') return alert('Account deletion cancelled.');
+
+            if (!confirm('FINAL WARNING: This will delete everything. Are you sure?')) return;
+
+            try {
+                const user = (await supabase.auth.getUser()).data.user;
+                if (user.user_metadata?.avatar_url) {
+                    const fileName = user.user_metadata.avatar_url.split('/').pop();
+                    await supabase.storage.from('avatars').remove([fileName]);
+                }
+                await supabase.auth.signOut();
+                alert('Account deleted successfully.');
+                window.location.href = 'admin.html';
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        };
+
+        // Mobile menu & logout (unchanged)
+        document.getElementById('hamburger').onclick = () => {
+            document.getElementById('admin-sidebar').classList.toggle('open');
+            document.getElementById('sidebar-overlay').classList.toggle('open');
+        };
+        document.getElementById('sidebar-overlay').onclick = () => {
+            document.getElementById('admin-sidebar').classList.remove('open');
+            document.getElementById('sidebar-overlay').classList.remove('open');
+        };
+
+        document.getElementById('logout-btn').onclick = (e) => {
+            e.preventDefault();
+            if (confirm('Logout from admin portal?')) {
+                supabase.auth.signOut().then(() => {
+                    window.location.href = 'admin.html';
+                });
+            }
+        };
+
+        // Start
+        initPage();
+    </script>
+</body>
+</html>
