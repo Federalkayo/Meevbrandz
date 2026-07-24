@@ -235,7 +235,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        const supabase = window.supabase.createClient(
+        const sb = window.supabase.createClient(
             'https://dcwmqnonfruqgrzaqbas.supabase.co',
             'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRjd21xbm9uZnJ1cWdyemFxYmFzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ1ODc0NjAsImV4cCI6MjA4MDE2MzQ2MH0.vxHW-xZpbVuhjjaK66b5sOQkIHLamEB7KDE8j5eVFN8'
         );
@@ -265,7 +265,7 @@
 
         // Load user info (name + avatar)
         async function loadUserInfo() {
-            const { data: { user } } = await supabase.auth.getUser();
+            const { data: { user } } = await sb.auth.getUser();
             if (user) {
                 const name = user.user_metadata?.full_name || user.email.split('@')[0] || 'Admin';
                 document.getElementById('welcome-greeting').innerHTML = `Welcome back, <strong>${name}</strong>!`;
@@ -279,7 +279,7 @@
             }
         }
 
-        supabase.auth.getSession().then(({ data: { session } }) => {
+        sb.auth.getSession().then(({ data: { session } }) => {
             if (session) {
                 loadUserInfo();
                 showDashboard();
@@ -288,7 +288,7 @@
 
         document.getElementById('login-form').onsubmit = async e => {
             e.preventDefault();
-            const { data, error } = await supabase.auth.signInWithPassword({
+            const { data, error } = await sb.auth.signInWithPassword({
                 email: document.getElementById('admin-email').value.trim(),
                 password: document.getElementById('admin-password').value
             });
@@ -303,14 +303,14 @@
 
         document.getElementById('sidebar-logout-btn').onclick = e => {
             e.preventDefault();
-            supabase.auth.signOut().then(() => location.reload());
+            sb.auth.signOut().then(() => location.reload());
         };
 
         // FIXED: Videos now use PUBLIC URLs (instant loading!)
         async function loadMedia() {
             mediaGrid.innerHTML = `<div style="border:8px solid #f0f0f0;border-top:8px solid #000;border-radius:50%;width:70px;height:70px;animation:spin 1s linear infinite;margin:4rem auto;"></div>`;
 
-            const { data: files, error } = await supabase.storage
+            const { data: files, error } = await sb.storage
                 .from('portfolio_media')
                 .list('public', { limit: 1000, sortBy: { column: 'created_at', order: 'desc' } });
 
@@ -330,7 +330,7 @@
                 if (isVideo) videos++; else images++;
 
                 // NOW BOTH IMAGES AND VIDEOS USE PUBLIC URL (instant & reliable)
-                const publicUrl = supabase.storage.from('portfolio_media').getPublicUrl(path).data.publicUrl;
+                const publicUrl = sb.storage.from('portfolio_media').getPublicUrl(path).data.publicUrl;
                 const url = `${publicUrl}?t=${Date.now()}`;
 
                 const card = document.createElement('div');
@@ -392,7 +392,7 @@
                     percent.textContent = Math.round(prog) + '%';
                 }, 180);
 
-                const { error } = await supabase.storage.from('portfolio_media').upload(path, file, { upsert: true });
+                const { error } = await sb.storage.from('portfolio_media').upload(path, file, { upsert: true });
                 clearInterval(timer);
 
                 if (!error || error.statusCode === '23505') {
@@ -471,7 +471,7 @@
                 const card = deleteBtn.closest('.media-card');
                 const path = card.dataset.path;
                 if (!confirm('Delete this file forever?')) return;
-                const { error } = await supabase.storage.from('portfolio_media').remove([path]);
+                const { error } = await sb.storage.from('portfolio_media').remove([path]);
                 if (!error) {
                     card.remove();
                     loadMedia(); // Refresh stats
@@ -489,9 +489,9 @@
                 const safeNewName = `${Date.now()}_${newName.replace(/[^a-zA-Z0-9.()_-]/g, '_')}`;
                 const newPath = `public/${safeNewName}`;
 
-                const { error: copyError } = await supabase.storage.from('portfolio_media').copy(oldPath, newPath);
+                const { error: copyError } = await sb.storage.from('portfolio_media').copy(oldPath, newPath);
                 if (!copyError) {
-                    await supabase.storage.from('portfolio_media').remove([oldPath]);
+                    await sb.storage.from('portfolio_media').remove([oldPath]);
                     loadMedia();
                 }
             }

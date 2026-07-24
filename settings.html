@@ -271,7 +271,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        const supabase = window.supabase.createClient(
+        const sb = window.supabase.createClient(
             'https://dcwmqnonfruqgrzaqbas.supabase.co',
             'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRjd21xbm9uZnJ1cWdyemFxYmFzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ1ODc0NjAsImV4cCI6MjA4MDE2MzQ2MH0.vxHW-xZpbVuhjjaK66b5sOQkIHLamEB7KDE8j5eVFN8'
         );
@@ -286,7 +286,7 @@
 
         // Show sidebar when logged in
         async function initPage() {
-            const { data: { session } } = await supabase.auth.getSession();
+            const { data: { session } } = await sb.auth.getSession();
             if (session) {
                 document.body.classList.add('logged-in');
                 loadUserData();
@@ -297,7 +297,7 @@
 
         // Load user data
         async function loadUserData() {
-            const { data: { user } } = await supabase.auth.getUser();
+            const { data: { user } } = await sb.auth.getUser();
             if (!user) return;
 
             document.getElementById('fullName').value = user.user_metadata?.full_name || user.email.split('@')[0] || '';
@@ -322,7 +322,7 @@
             errorMsg.style.display = 'none';
 
             try {
-                const { data: { user } } = await supabase.auth.getUser();
+                const { data: { user } } = await sb.auth.getUser();
 
                 const updates = {
                     data: {
@@ -333,11 +333,11 @@
 
                 if (email !== user.email) updates.email = email;
 
-                const { error } = await supabase.auth.updateUser(updates);
+                const { error } = await sb.auth.updateUser(updates);
                 if (error) throw error;
 
                 if (password) {
-                    const { error: pwdError } = await supabase.auth.updateUser({ password });
+                    const { error: pwdError } = await sb.auth.updateUser({ password });
                     if (pwdError) throw pwdError;
                 }
 
@@ -360,17 +360,17 @@
             if (!file) return;
             if (file.size > 2 * 1024 * 1024) return alert('Image must be under 2MB');
 
-            const user = (await supabase.auth.getUser()).data.user;
+            const user = (await sb.auth.getUser()).data.user;
             const fileExt = file.name.split('.').pop();
             const fileName = `${user.id}.${fileExt}`;
 
-            const { error } = await supabase.storage.from('avatars').upload(fileName, file, { upsert: true });
+            const { error } = await sb.storage.from('avatars').upload(fileName, file, { upsert: true });
             if (error && error.statusCode !== '23505') return alert('Upload failed: ' + error.message);
 
-            const { data } = supabase.storage.from('avatars').getPublicUrl(fileName);
+            const { data } = sb.storage.from('avatars').getPublicUrl(fileName);
 
             // This line is the key — we merge existing metadata instead of overwriting
-            await supabase.auth.updateUser({
+            await sb.auth.updateUser({
                 data: {
                     ...(user.user_metadata || {}),
                     avatar_url: data.publicUrl
@@ -389,12 +389,12 @@
             if (!confirm('FINAL WARNING: This will delete everything. Are you sure?')) return;
 
             try {
-                const user = (await supabase.auth.getUser()).data.user;
+                const user = (await sb.auth.getUser()).data.user;
                 if (user.user_metadata?.avatar_url) {
                     const fileName = user.user_metadata.avatar_url.split('/').pop();
-                    await supabase.storage.from('avatars').remove([fileName]);
+                    await sb.storage.from('avatars').remove([fileName]);
                 }
-                await supabase.auth.signOut();
+                await sb.auth.signOut();
                 alert('Account deleted successfully.');
                 window.location.href = 'admin.html';
             } catch (err) {
@@ -415,7 +415,7 @@
         document.getElementById('logout-btn').onclick = (e) => {
             e.preventDefault();
             if (confirm('Logout from admin portal?')) {
-                supabase.auth.signOut().then(() => {
+                sb.auth.signOut().then(() => {
                     window.location.href = 'admin.html';
                 });
             }

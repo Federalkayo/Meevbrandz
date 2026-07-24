@@ -274,7 +274,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        const supabase = window.supabase.createClient(
+        const sb = window.supabase.createClient(
             'https://dcwmqnonfruqgrzaqbas.supabase.co',
             'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRjd21xbm9uZnJ1cWdyemFxYmFzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ1ODc0NjAsImV4cCI6MjA4MDE2MzQ2MH0.vxHW-xZpbVuhjjaK66b5sOQkIHLamEB7KDE8j5eVFN8'
         );
@@ -290,7 +290,7 @@
         updateClock();
 
         async function initPage() {
-            const { data: { session } } = await supabase.auth.getSession();
+            const { data: { session } } = await sb.auth.getSession();
             if (!session) {
                 window.location.href = 'admin.html';
                 return;
@@ -302,7 +302,7 @@
         }
 
         async function loadAnalytics() {
-            const { data: files } = await supabase.storage
+            const { data: files } = await sb.storage
                 .from('portfolio_media')
                 .list('public', { limit: 1000 });
 
@@ -331,7 +331,7 @@
             recentList.innerHTML = '';
             recent.forEach(file => {
                 const isVideo = /\.(mp4|webm|mov|avi|mkv|mpg|mpeg|ogg)$/i.test(file.name);
-                const url = supabase.storage.from('portfolio_media').getPublicUrl(`public/${file.name}`).data.publicUrl;
+                const url = sb.storage.from('portfolio_media').getPublicUrl(`public/${file.name}`).data.publicUrl;
                 const item = document.createElement('div');
                 item.className = 'upload-item';
                 item.innerHTML = `
@@ -344,7 +344,7 @@
                 recentList.appendChild(item);
             });
 
-            // Charts - Fixed line
+            // Charts
             const weekData = [0,0,0,0,0,0,0];
             const now = new Date();
             allFiles.forEach(f => {
@@ -420,7 +420,7 @@
         };
         document.getElementById('logout-btn').onclick = () => {
             if (confirm('Logout?')) {
-                supabase.auth.signOut().then(() => window.location.href = 'admin.html');
+                sb.auth.signOut().then(() => window.location.href = 'admin.html');
             }
         };
 
